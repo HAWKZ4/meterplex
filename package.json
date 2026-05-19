@@ -109,6 +109,7 @@
     "compression": "^1.8.1",
     "cron": "^4.4.0",
     "helmet": "^8.1.0",
+    "ioredis": "^5.10.1",
     "kafkajs": "^2.2.4",
     "nest-winston": "^1.10.2",
     "passport": "^0.7.0",
