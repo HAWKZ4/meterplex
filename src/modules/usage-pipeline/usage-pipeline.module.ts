@@ -9,10 +9,15 @@
  */
 import { Module } from '@nestjs/common';
 
+import { DeadLetterConsumer } from './dead-letter.consumer';
 import { UsageAggregationConsumer } from './usage-aggregation.consumer';
 import { UsageValidationConsumer } from './usage-validation.consumer';
 
 @Module({
-  providers: [UsageValidationConsumer, UsageAggregationConsumer],
+  providers: [
+    UsageValidationConsumer,
+    UsageAggregationConsumer,
+    DeadLetterConsumer,
+  ],
 })
 export class UsagePipelineModule {}
