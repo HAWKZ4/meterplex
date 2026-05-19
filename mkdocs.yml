@@ -79,6 +79,7 @@ nav:
       - Overview: architecture/overview.md
       - Audit Log: architecture/audit-log.md
       - Plans & Entitlements: architecture/phase-2-plans-and-entitlements.md
+      - Usage Event Pipeline: architecture/usage-event-pipeline.md
   - Development:
       - Setup Guide: development/setup.md
   - API Reference:
