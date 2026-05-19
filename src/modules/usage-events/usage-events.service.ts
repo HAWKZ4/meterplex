@@ -12,9 +12,13 @@
  * For now, events sit in usage_events with status=PENDING and in
  * outbox with status=PENDING, ready for the next steps.
  *
- * Idempotency is enforced via the UNIQUE constraint on event_id:
- *   - First submission: INSERT succeeds, status = accepted
- *   - Retry with same eventId: INSERT fails, status = duplicate
+ * Idempotency is enforced at three layers:
+ *   1. Redis SETNX (fast path): usage:event:{eventId} with 24h TTL.
+ *      Catches retries instantly without hitting Postgres.
+ *   2. Postgres UNIQUE constraint (authoritative): INSERT fails on
+ *      duplicate event_id, caught and returned as status = duplicate.
+ *   3. Kafka validation consumer: checks usage_events.status, skips
+ *      events already validated/aggregated.
  *
  * Validation performed per-event:
  *   - Tenant has an active subscription (cached per-request)
@@ -35,6 +39,8 @@ import { PrismaService } from '@app-prisma/prisma.service';
 import { ERRORS } from '@common/constants';
 import { isUniqueConstraintError } from '@common/utils/prisma-errors';
 
+import { RedisService } from '@modules/redis';
+
 import { SubscriptionStatus } from '@prisma/client';
 
 import type {
@@ -53,7 +59,10 @@ const MAX_FUTURE_DRIFT_MS = 5 * 60 * 1000; // 5 minutes
 export class UsageEventsService {
   private readonly logger = new Logger(UsageEventsService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly redis: RedisService,
+  ) {}
 
   /**
    * Ingest a batch of usage events for a tenant.
@@ -111,6 +120,26 @@ export class UsageEventsService {
     const rejected: UsageEventResultDto[] = [];
 
     for (const event of dto.events) {
+      // Fast dedup via Redis SETNX — catches retries before hitting Postgres.
+      // Key: usage:event:{eventId}, TTL: 24h. If key exists → duplicate.
+      // This is the first dedup layer (fast). Postgres UNIQUE is the second (authoritative).
+      try {
+        const dedupKey = `usage:event:${event.eventId}`;
+        const isNew = await this.redis
+          .getClient()
+          .set(dedupKey, '1', 'EX', 86400, 'NX');
+        if (!isNew) {
+          rejected.push({
+            eventId: event.eventId,
+            status: 'duplicate',
+          });
+          continue;
+        }
+      } catch {
+        // Redis down — skip fast dedup, fall through to Postgres UNIQUE constraint.
+        // Slightly slower but still correct.
+      }
+
       const rejection = this.preValidate(event, entitledFeatures, now);
       if (rejection) {
         rejected.push({
