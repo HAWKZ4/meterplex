@@ -1,0 +1,40 @@
+meta {
+  name: Submit Batch Usage Events
+  type: http
+  seq: 2
+}
+
+post {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/usage/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+body:json {
+  {
+    "events": [
+      {
+        "eventId": "batch-001-aaaa-bbbb-cccc-ddddeeeeffff",
+        "feature": "api_calls",
+        "amount": 5,
+        "timestamp": "2026-05-19T10:00:00Z"
+      },
+      {
+        "eventId": "batch-002-aaaa-bbbb-cccc-ddddeeeeffff",
+        "feature": "storage",
+        "amount": 2,
+        "timestamp": "2026-05-19T10:00:01Z"
+      },
+      {
+        "eventId": "batch-003-aaaa-bbbb-cccc-ddddeeeeffff",
+        "feature": "nonexistent_feature",
+        "amount": 1,
+        "timestamp": "2026-05-19T10:00:02Z"
+      }
+    ]
+  }
+}

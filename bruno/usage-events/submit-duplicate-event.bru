@@ -1,0 +1,28 @@
+meta {
+  name: Submit Duplicate Event (Idempotency Test)
+  type: http
+  seq: 3
+}
+
+post {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/usage/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+body:json {
+  {
+    "events": [
+      {
+        "eventId": "batch-001-aaaa-bbbb-cccc-ddddeeeeffff",
+        "feature": "api_calls",
+        "amount": 5,
+        "timestamp": "2026-05-19T10:00:00Z"
+      }
+    ]
+  }
+}

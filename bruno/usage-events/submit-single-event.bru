@@ -1,0 +1,28 @@
+meta {
+  name: Submit Single Usage Event
+  type: http
+  seq: 1
+}
+
+post {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/usage/events
+  body: json
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{apiKey}}
+}
+
+body:json {
+  {
+    "events": [
+      {
+        "eventId": "{{$guid}}",
+        "feature": "api_calls",
+        "amount": 1,
+        "timestamp": "{{$isoTimestamp}}"
+      }
+    ]
+  }
+}
