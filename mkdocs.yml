@@ -79,7 +79,7 @@ nav:
       - Overview: architecture/overview.md
       - Audit Log: architecture/audit-log.md
       - Plans & Entitlements: architecture/phase-2-plans-and-entitlements.md
-      - Usage Event Pipeline: architecture/usage-event-pipeline.md
+      - Usage Event Pipeline: architecture/phase-3-usage-event-pipeline.md
   - Development:
       - Setup Guide: development/setup.md
   - API Reference:
@@ -94,6 +94,7 @@ nav:
           - 'Phase 0: Project Foundations': phases/phase-0.md
           - 'Phase 1: Identity & Access': phases/phase-1.md
           - 'Phase 2: Plans & Entitlements': phases/phase-2.md
+          - 'Phase 3: Usage Pipeline': phases/phase-3.md
   - Maintenance:
       - CI/CD & Automation: maintenance/ci-cd.md
   - Community:

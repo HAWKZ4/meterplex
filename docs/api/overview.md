@@ -48,6 +48,28 @@ API key requests are inherently tenant-scoped - the key itself identifies the te
 
 Keys are created via `POST /api/v1/api-keys`. The raw key is shown once at creation and never again. Only a SHA-256 hash is stored.
 
+### Usage Events (Server-to-server)
+
+Usage events are submitted via the same API key mechanism:
+
+```http
+POST /api/v1/usage/events
+Authorization: Bearer mp_live_aBcDeFgHiJkLmNoPqRs...
+Content-Type: application/json
+{
+  "events": [
+    {
+      "eventId": "client-generated-uuid",
+      "feature": "api_calls",
+      "amount": 1,
+      "timestamp": "2026-05-19T12:00:00Z"
+    }
+  ]
+}
+```
+
+Returns `202 Accepted` with per-event status. Events are processed asynchronously through the Kafka pipeline. Client-generated `eventId` provides idempotency — retrying the same event ID is a no-op.
+
 ### Role-Based Access Control (RBAC)
 
 Users have a role within each tenant via the memberships table:

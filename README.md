@@ -138,6 +138,11 @@ meterplex/
 │       ├── tenants/         # Tenant CRUD, tenant-scoped queries
 │       ├── users/           # User management, tenant membership
 │       ├── auth/            # JWT, Passport, refresh tokens, password reset
+│       ├── usage-events/    # Usage event ingestion API (API key auth)
+│       ├── usage-pipeline/  # Kafka consumers (validation, aggregation, dead letter)
+│       ├── kafka/           # Kafka producer, consumer base, topic constants
+│       ├── redis/           # Redis connection and cache operations
+│       ├── outbox/          # Outbox publisher worker (drains to Kafka)
 │       └── api-keys/        # Server-to-server key management + auth guard
 ├── prisma/
 │   ├── schema.prisma        # Database schema (single source of truth)

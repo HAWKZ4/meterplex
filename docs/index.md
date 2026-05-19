@@ -39,8 +39,8 @@ App runs at `http://localhost:3000`. API docs at `http://localhost:3000/api/docs
 | 0     | Project setup, infrastructure, foundations                        | ✅ Complete |
 | 1     | Multi-tenant identity and access (auth, tenants, users, API keys) | ✅ Complete |
 | 2     | Plans, entitlements, and quotas                                   | ✅ Complete |
-| 3     | Usage ingestion, outbox pattern, Kafka pipeline                   | 🔜 Next     |
-| 4     | Billing ledger and invoices                                       |             |
+| 3     | Usage ingestion, outbox pattern, Kafka pipeline                   | ✅ Complete |
+| 4     | Billing ledger and invoices                                       | 🔜 Next     |
 | 5     | Payments and webhooks                                             |             |
 | 6     | Admin, audit log, reconciliation                                  |             |
 | 7     | Observability (Grafana, Loki, OpenTelemetry)                      |             |
@@ -93,7 +93,7 @@ App runs at `http://localhost:3000`. API docs at `http://localhost:3000/api/docs
 
 ---
 
-### Phase 2 Plans and Entitlements
+### Phase 2 - Plans and Entitlements
 
 #### Plans
 
@@ -148,6 +148,16 @@ App runs at `http://localhost:3000`. API docs at `http://localhost:3000/api/docs
 | :----- | :----------------------------------------- | :------------------------------ |
 | GET    | `/api/v1/entitlements/:featureKey/check`   | Check if tenant can use feature |
 | POST   | `/api/v1/entitlements/:featureKey/consume` | Consume units of feature        |
+
+---
+
+### Phase 3 — Usage Pipeline
+
+#### Usage Events
+
+| Method | Path                   | Description                                 |
+| :----- | :--------------------- | :------------------------------------------ |
+| POST   | `/api/v1/usage/events` | Submit batch of usage events (API key auth) |
 
 ---
 
