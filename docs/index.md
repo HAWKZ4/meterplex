@@ -173,14 +173,27 @@ We use [Lefthook](https://github.com/evilmartians/lefthook) for lightning-fast p
 - **Security**: Gitleaks for secrets and Zizmor for GitHub Actions.
 - **Testing**: Vitest for relevant unit tests.
 
-### Commit Standards
+### Commit & Branch Standards
 
-We follow [Conventional Commits](https://www.conventionalcommits.org/). This allows us to generate automated changelogs and manage versions easily.
+We enforce [Conventional Commits](https://www.conventionalcommits.org/) and strict branch naming conventions using our custom package **[@chitrank2050/git-hygiene](https://github.com/chitranklabs/git-hygiene)**.
 
-- `feat:` for new features.
-- `fix:` for bug fixes.
-- `chore:` for maintenance or dependencies.
-- `docs:` for documentation changes.
+- **Commit Format Validation**: Enforced via a `commit-msg` git hook running `npx git-hygiene commit` to check format compliance.
+- **Branch Verification**: Enforced via a `pre-push` git hook running `npx git-hygiene branch` to check branch naming rules before pushing to remote.
+
+#### Allowed Types
+
+Allowed type prefixes (defined in `package.json`) include:
+
+- `feat` — New features.
+- `fix` — Bug fixes.
+- `chore` — Routine chore/configuration updates.
+- `docs` — Documentation additions/updates.
+- `refactor` — Code refactoring without functionality changes.
+- `perf` — Performance enhancements.
+- `test` — Testing setups or changes.
+- `maintenance` — Code hygiene, cleanup, and security tasks.
+- `renovate` — Automated dependency upgrades.
+- `style`, `build`, `ci`, `revert`
 
 ### Automated Releases
 
