@@ -105,3 +105,20 @@ In production, these services are typically replaced by cloud-native managed sol
 ![Phase 1 ERD](phase-1-erd.png)
 
 Four tables: `tenants` (organizations), `users` (global accounts), `memberships` (join table with roles), and `api_keys` (server-to-server authentication). A user can belong to multiple tenants with different roles via the memberships table.
+
+## Phase 2 - Plans & Entitlements
+
+![Phase 2 ERD](phase-2-erd.png)
+
+Phase 2 adds plans, pricing, features, entitlements, subscriptions, and entitlement snapshots to define access rules and map customer organizations to subscription tiers.
+
+## Phase 3 - Usage Ingestion & Kafka Pipeline
+
+![Phase 3 ERD](phase-3-erd.jpg)
+
+Phase 3 introduces four new tables to support transactional event ingestion, outbox-driven Kafka publishing, high-performance counting, and robust error/dead-letter auditing:
+
+- `usage_events`: Immutable event log of raw submissions.
+- `outbox_events`: Transactional outbox for guaranteed Kafka publishing.
+- `usage_aggregates`: Rolled-up counters per tenant, feature, and billing period (cached in Redis).
+- `dead_letter_events`: Operational record for failed events requiring administrative triage.
