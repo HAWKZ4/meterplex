@@ -136,7 +136,7 @@ Deep-dive technical documentation is organized across:
 
 Meterplex is licensed under the [MIT License](LICENSE).
 
-If you use Meterplex in your project, a star or credit is appreciated.
+⭐ _If you use Meterplex in your project, a star or credit is appreciated._
 
 ---
 
