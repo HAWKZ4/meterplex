@@ -89,22 +89,22 @@ _For custom configs, manual setups, or daily commands, refer to the [Development
 Meterplex is structured as a **modular monolith** to combine the operational simplicity of a single deployable unit with strict domain boundary isolation.
 
 ```text
-┌─────────────────────────────────────────────────────┐
-│                    NestJS App                       │
-│                                                     │
+┌────────────────────────────────────────────────────┐
+│                    NestJS App                      │
+│                                                    │
 │  ┌──────────┐ ┌──────────┐ ┌──────────┐            │
 │  │  Tenants │ │  Usage   │ │ Billing  │  ...more   │
 │  │  Module  │ │  Module  │ │  Module  │  modules   │
-│  └────┬─────┘ └────┬─────┘ └────┬─────┘            │
-│       │             │            │                  │
-│  ┌────▼─────────────▼────────────▼─────┐            │
-│  │          Prisma (PostgreSQL)        │            │
-│  └─────────────────────────────────────┘            │
-│       │             │            │                  │
+│  └────┬─────┘ └─────┬────┘ └─────┬────┘            │
+│       │             │            │                 │
+│  ┌────▼─────────────▼────────────▼─────┐           │
+│  │          Prisma (PostgreSQL)        │           │
+│  └─────────────────────────────────────┘           │
+│       │             │           │                  │
 │  ┌────▼──┐    ┌─────▼───┐  ┌────▼──┐               │
 │  │ Redis │    │  Kafka  │  │ Cron  │               │
 │  └───────┘    └─────────┘  └───────┘               │
-└─────────────────────────────────────────────────────┘
+└────────────────────────────────────────────────────┘
 ```
 
 | Domain        | Technology                                                                        | Purpose                                 |
