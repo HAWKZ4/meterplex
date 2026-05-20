@@ -2,6 +2,29 @@
 
 All notable changes to the Meterplex API and core platform.
 
+## [0.7.0] - 2026-05-20
+
+### ⚙️ Maintenance
+
+- Remove unreleased header from changelog configuration ([3c94ebd](https://github.com/chitrank2050/meterplex/commit/3c94ebd0523a66e8027623ca6ccb1eca5fa50e76))
+
+### 📚 Documentation
+
+- Document project structure and available development scripts in setup guide and README ([7d8cade](https://github.com/chitrank2050/meterplex/commit/7d8cade7b43589926aa4ef257b8742015ada2790))
+- Remove emojis from section headers in README and index documentation ([8072e0e](https://github.com/chitrank2050/meterplex/commit/8072e0e4edced3428ff31698c2202f48e9236374))
+- Update project documentation in README.md ([03cfcf3](https://github.com/chitrank2050/meterplex/commit/03cfcf309f1f46583407b089ccf79461b587c4ef))
+- Update project documentation in README.md ([9a8951f](https://github.com/chitrank2050/meterplex/commit/9a8951f7d2c3a2f58636ac658ab2ae9d0d0f3153))
+- Update commit and branch standards to include git-hygiene enforcement details ([b6caddd](https://github.com/chitrank2050/meterplex/commit/b6cadddcf50734bbbc12167039daf7516b291e5f))
+- Update README with project documentation and setup instructions ([f30e482](https://github.com/chitrank2050/meterplex/commit/f30e4823f87699a326a556828c91dae3995e9968))
+- **phase-4:** Finalize documentation and Bruno collection (#127) ([a094589](https://github.com/chitrank2050/meterplex/commit/a094589324086e122bc8626737bfad09f71f7667))
+
+### 🚀 Features
+
+- **billing:** Schema for invoices, line items, and billing ledger (#123) ([2284783](https://github.com/chitrank2050/meterplex/commit/2284783cb88c372a7d132353a633b2ee28242509))
+- **invoice:** Invoice module (#124) ([fa32aaa](https://github.com/chitrank2050/meterplex/commit/fa32aaa02210d32faf312fc837fb6bac3b901aca))
+- **invoices:** Add DTOs for invoice and billing ledger endpoints ([e81699d](https://github.com/chitrank2050/meterplex/commit/e81699d2c251a7e7ee646dd2e498be325fe2a09e))
+- **billing:** Automated billing cron job (#125) ([0655f7d](https://github.com/chitrank2050/meterplex/commit/0655f7d449e373a225d33cc3a45fea2ab2960119))
+- **seed:** Add sample invoices and ledger entries for dev tenants (#126) ([be1d0f4](https://github.com/chitrank2050/meterplex/commit/be1d0f4759bbf8c453afe092ada90bc07f00a0a0))
 ## [0.6.0] - 2026-05-19
 
 ### ⚙️ Maintenance
@@ -31,6 +54,7 @@ All notable changes to the Meterplex API and core platform.
 - Add architectural documentation for the usage event pipeline ([82e48f7](https://github.com/chitrank2050/meterplex/commit/82e48f79eb689cc2b0fb4f6a77580aaab0904f7d))
 - **phase-3:** Finalize documentation ([c6fb3bb](https://github.com/chitrank2050/meterplex/commit/c6fb3bbeb4b75b99fdf3c1c131ac5fe2d88f6abc))
 - **phase-3:** Finalize bruno collection ([0d8f397](https://github.com/chitrank2050/meterplex/commit/0d8f39724513d0b4ed6a9c3bcdfa96c58902cc2a))
+- Add architecture documentation for Phase 3 usage event pipeline ([319a74e](https://github.com/chitrank2050/meterplex/commit/319a74e2a4bf8a51895461674ceb1468eac8d3cd))
 
 ### 🚀 Features
 
@@ -52,11 +76,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚜 Refactoring
 
 - Migrate pnpm overrides to workspace configuration and optimize ScheduleModule init ([a292f07](https://github.com/chitrank2050/meterplex/commit/a292f073cb9d60a8275857b33353a1af32214131))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
 ## [0.5.7] - 2026-04-28
 
 ### ⚙️ Maintenance
@@ -105,12 +124,6 @@ All notable changes to the Meterplex API and core platform.
 - Reformat doc and issue templates to improve table alignment & stylistic consistency ([9a3aec6](https://github.com/chitrank2050/meterplex/commit/9a3aec6fe83bf0bcaac57f11c2f9070a196f7c81))
 - Standardize changelog architecture ([89c2a3b](https://github.com/chitrank2050/meterplex/commit/89c2a3bb49cc2f5422d37ad9239f3092f51502b0))
 - Modernize git-cliff configuration and update CI workflow automation ([74334b3](https://github.com/chitrank2050/meterplex/commit/74334b3bf7c22813546a40408500f14cf8b756cd))
-
-### 👥 Contributors
-
-- [@chitrank-actions[bot]](https://github.com/chitrank-actions[bot])
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
 ## [0.5.6] - 2026-04-26
 
 ### ⚙️ Maintenance
@@ -135,12 +148,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚜 Refactoring
 
 - Restrict prepare & release jobs to trigger only on manual dispatch & tag pushes ([fd084aa](https://github.com/chitrank2050/meterplex/commit/fd084aadcef8c7c931e57cd7fd0aec1f02d402f0))
-
-### 👥 Contributors
-
-- [@chitrank-actions[bot]](https://github.com/chitrank-actions[bot])
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
 ## [0.5.5] - 2026-04-25
 
 ### ⚙️ Maintenance
@@ -228,13 +235,6 @@ All notable changes to the Meterplex API and core platform.
 - Consolidate linting and security audit jobs to reduce CI runner overhead ([d4e1179](https://github.com/chitrank2050/meterplex/commit/d4e11794258bd6801a4bc78306aa440ebc33b6e7))
 - Decouple release workflow into separate prepare and release stages with manual approval ([71508dc](https://github.com/chitrank2050/meterplex/commit/71508dc533d81ff8e870f411c547b6d434815623))
 - Move release PR check to job conditions & update auto-approve workflow to use GITHUB_TOKEN ([0a9afb8](https://github.com/chitrank2050/meterplex/commit/0a9afb8eafb08c4649c6edfab6bc78ef03af58df))
-
-### 👥 Contributors
-
-- [@chitrank-actions[bot]](https://github.com/chitrank-actions[bot])
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
-- [@github-actions[bot]](https://github.com/github-actions[bot])
 ## [0.5.4] - 2026-04-25
 
 ### ⚙️ Maintenance
@@ -266,13 +266,6 @@ All notable changes to the Meterplex API and core platform.
 
 - Update release workflow to generate changelog via automated PR instead of direct commit ([8b12cfe](https://github.com/chitrank2050/meterplex/commit/8b12cfe45475f48978f194bf54620ce4d3e86d2a))
 - Replace action-gh-release with GitHub CLI for release creation ([9a2d8d5](https://github.com/chitrank2050/meterplex/commit/9a2d8d5107daceeba3f3c0119540c007d9553cc5))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
-- [@dependabot[bot]](https://github.com/dependabot[bot])
-- [@github-actions[bot]](https://github.com/github-actions[bot])
 ## [0.5.3] - 2026-04-24
 
 ### ⚙️ Maintenance
@@ -286,10 +279,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚀 Features
 
 - Modernize documentation theme with custom CSS and enhanced MkDocs Material configuration ([566817e](https://github.com/chitrank2050/meterplex/commit/566817e101732d804e755f2634ce763ada4ca96b))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.5.2] - 2026-04-24
 
 ### ⚙️ Maintenance
@@ -327,11 +316,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚜 Refactoring
 
 - Replace Husky and lint-staged with Lefthook for git hook management ([f94704c](https://github.com/chitrank2050/meterplex/commit/f94704c49495a67d952be7e30ad8a2d6228fdbcc))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
 ## [0.5.1] - 2026-04-16
 
 ### ⚙️ Maintenance
@@ -345,12 +329,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚀 Features
 
 - **usage:** Schema for usage events, outbox, aggregates, and dead letter queue ([173c6f6](https://github.com/chitrank2050/meterplex/commit/173c6f6a8ce7aa85eafb544fe80ae943eb0028ad))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
-- [@dependabot[bot]](https://github.com/dependabot[bot])
 ## [0.5.0] - 2026-04-16
 
 ### ⚙️ Maintenance
@@ -367,11 +345,6 @@ All notable changes to the Meterplex API and core platform.
 - Implement EntitlementCheckModule for runtime feature gating and usage consumption ([c17e458](https://github.com/chitrank2050/meterplex/commit/c17e4580a6414b1b25250031fc5c676c4748dbe2))
 - Seed database with subscription plans, pricing, features, and entitlements ([ad61d65](https://github.com/chitrank2050/meterplex/commit/ad61d65727ad7da3e9ec52ae0041fa033923c1df))
 - Implement plans, features, entitlements, and subscription management system ([e004670](https://github.com/chitrank2050/meterplex/commit/e00467029d6f945f5d1453378809674225b472f2))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@renovate[bot]](https://github.com/renovate[bot])
 ## [0.4.5] - 2026-04-12
 
 ### ⚙️ Maintenance
@@ -394,10 +367,6 @@ All notable changes to the Meterplex API and core platform.
 
 - Replace hardcoded enum strings with Prisma generated enums across all DTOs ([ba7c0ff](https://github.com/chitrank2050/meterplex/commit/ba7c0fffaefc3feabe6f3c0c8d1c21b5fe4e5c2d))
 - Replace hardcoded string enums with Prisma generated enum types across services ([7257470](https://github.com/chitrank2050/meterplex/commit/7257470f61603235dc9d72a190de27072c174184))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.4.3] - 2026-04-12
 
 ### ⚙️ Maintenance
@@ -447,19 +416,11 @@ All notable changes to the Meterplex API and core platform.
 - Migrate test runner from Jest to Vitest ([5cac08b](https://github.com/chitrank2050/meterplex/commit/5cac08b08bcf0b3a177398d7d506e08845ed3a2f))
 - Reorder color scheme definitions in mkdocs.yml to set dark mode as default ([d576205](https://github.com/chitrank2050/meterplex/commit/d576205c8a657dfd9fb3f2a6cd96a20fd9869227))
 - Migrate Prisma client generation to node_modules and update import paths ([010a6f5](https://github.com/chitrank2050/meterplex/commit/010a6f53dd7d4119a4aa60f50d9ba1661d640aa0))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.4.2] - 2026-04-10
 
 ### 📚 Documentation
 
 - Update README and add CODEOWNERS file to define repository ownership ([bd5acc0](https://github.com/chitrank2050/meterplex/commit/bd5acc0cc0064d0373c1dcfe5ef96b9196bc8aa9))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.4.1] - 2026-04-10
 
 ### ⚙️ Maintenance
@@ -484,11 +445,6 @@ All notable changes to the Meterplex API and core platform.
 - Add audit log interceptor documentation and phase 1 summary updates ([734a81c](https://github.com/chitrank2050/meterplex/commit/734a81cbb7499ff8f1a9d28c9784f95d3973a23c))
 - Implement plans, features, and entitlements schema with supporting documentation ([cf5a0a5](https://github.com/chitrank2050/meterplex/commit/cf5a0a588bc3d3e0deb4309c8fc1312eaaa172ed))
 - Add support for plans, features, entitlements, and subscriptions to audit log resource mapping ([5fcefb1](https://github.com/chitrank2050/meterplex/commit/5fcefb19730404a6c6be7065c076912c60736d07))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@dependabot[bot]](https://github.com/dependabot[bot])
 ## [0.4.0] - 2026-04-09
 
 ### 📚 Documentation
@@ -501,19 +457,11 @@ All notable changes to the Meterplex API and core platform.
 - Add Bruno API requests for retrieving and updating tenants ([409fa7d](https://github.com/chitrank2050/meterplex/commit/409fa7d93c7ec490001ece8ba16248f22a68d6a2))
 - Add Bruno API collections for tenant context and user management endpoints ([9d3434c](https://github.com/chitrank2050/meterplex/commit/9d3434c001495b7c3b2ab9ed9add39402f5e4fe6))
 - Add Bruno API collections for creating, listing, and revoking API keys ([471ba01](https://github.com/chitrank2050/meterplex/commit/471ba01edc0c3f1ad7933f1e5dc71b02207d4a44))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.3.5] - 2026-04-09
 
 ### 🚜 Refactoring
 
 - Implement robust Prisma unique constraint error handling with dedicated utility ([198e3af](https://github.com/chitrank2050/meterplex/commit/198e3afd481ee9cef1b19dab1a9260abf25ddf0f))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.3.4] - 2026-04-09
 
 ### ⚙️ Maintenance
@@ -549,11 +497,6 @@ All notable changes to the Meterplex API and core platform.
 - Add ErrorResponseDto to Swagger API response decorators in tenants controller ([0386406](https://github.com/chitrank2050/meterplex/commit/0386406a482245891b3c32766b2db92a7079f76b))
 - Implement DTO factory methods for API key and tenant responses to decouple service layer ([3d7c3b3](https://github.com/chitrank2050/meterplex/commit/3d7c3b33963955c4413cec1697af1c254c682c4b))
 - Remove static DTO factory methods to rely on direct service return types for serialization ([34a8558](https://github.com/chitrank2050/meterplex/commit/34a85581675142646b22af436f4f02a27b499773))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@dependabot[bot]](https://github.com/dependabot[bot])
 ## [0.3.3] - 2026-04-04
 
 ### 📚 Documentation
@@ -565,10 +508,6 @@ All notable changes to the Meterplex API and core platform.
 
 - Add API keys module with Stripe-style key generation, hashing, and revocation ([00f6c1a](https://github.com/chitrank2050/meterplex/commit/00f6c1a112c393cb03c7691d6c3744f9a9e9c443))
 - Update seed script with users, memberships, and API keys across tenants ([0e1c217](https://github.com/chitrank2050/meterplex/commit/0e1c217b8d18cc5da8d761fd319521dbcf749320))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.3.2] - 2026-04-04
 
 ### ⚙️ Maintenance
@@ -581,10 +520,6 @@ All notable changes to the Meterplex API and core platform.
 - Implement TenantGuard and RolesGuard for multi-tenant RBAC enforcement ([9bea9bd](https://github.com/chitrank2050/meterplex/commit/9bea9bd3600f4b82ab43e465e1c44b4a54601eec))
 - Add protected endpoint to retrieve authenticated tenant context with guard validation ([d4d3ab2](https://github.com/chitrank2050/meterplex/commit/d4d3ab26301d74caa03c95bf6c200f5e0a6e7f21))
 - Add guards to tenants and users controllers, RBAC enforcement, tenant-scoped user creation ([fbb6bea](https://github.com/chitrank2050/meterplex/commit/fbb6bea203531ca584c0e92c1fd486181ad4ab74))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.3.1] - 2026-04-04
 
 ### 👷 CI/CD & Infra
@@ -596,11 +531,6 @@ All notable changes to the Meterplex API and core platform.
 - Add DTOs for token refresh and password management flows ([9aa9faa](https://github.com/chitrank2050/meterplex/commit/9aa9faa07254648359ea15c75f263e5b46a300cc))
 - Implement full authentication lifecycle including refresh tokens, password management ([0089b18](https://github.com/chitrank2050/meterplex/commit/0089b18ee8b5bd1e02b9c5a76fef37919cf3e767))
 - Add complete auth flow with dual JWT tokens, password reset, and token rotation ([25d3dfc](https://github.com/chitrank2050/meterplex/commit/25d3dfcbd874f07f13e08607f9f091fd4b1e257e))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@dependabot[bot]](https://github.com/dependabot[bot])
 ## [0.3.0] - 2026-04-04
 
 ### ⚙️ Maintenance
@@ -644,11 +574,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚜 Refactoring
 
 - Replace hardcoded tenant error messages with centralized constants ([b4e7e6e](https://github.com/chitrank2050/meterplex/commit/b4e7e6ee4b2691d8af4d557355f26814b808f945))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
-- [@dependabot[bot]](https://github.com/dependabot[bot])
 ## [0.2.1] - 2026-03-29
 
 ### ⚙️ Maintenance
@@ -671,10 +596,6 @@ All notable changes to the Meterplex API and core platform.
 ### 🚜 Refactoring
 
 - Restrict prettier formatting scope to src directory in package.json ([76bf8a7](https://github.com/chitrank2050/meterplex/commit/76bf8a79b453d7962dd38f99e8552af87cbec2d5))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 ## [0.2.0] - 2026-03-29
 
 ### ⚙️ Maintenance
@@ -710,8 +631,4 @@ All notable changes to the Meterplex API and core platform.
 - Implement Tenant model with initial migration and database seeding script ([59af51f](https://github.com/chitrank2050/meterplex/commit/59af51fd39cfcca3e0ad15e56fedf67eb0392f81))
 - Add git-cliff configuration and release automation scripts with version bump to 0.2.0 ([1e754cb](https://github.com/chitrank2050/meterplex/commit/1e754cb82fd6705cb94a057266d5a2112c889d30))
 - Copy root CHANGELOG.md to docs directory during CI build for MkDocs inclusion ([3aa9ca9](https://github.com/chitrank2050/meterplex/commit/3aa9ca9cfc64efdaea75a9982e8bdac6adb19ead))
-
-### 👥 Contributors
-
-- [@chitrank2050](https://github.com/chitrank2050)
 
