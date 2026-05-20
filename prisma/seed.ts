@@ -1095,6 +1095,240 @@ async function main(): Promise<void> {
   }
 
   // =========================================================
+  // INVOICES + LEDGER
+  //
+  // One FINALIZED invoice per tenant for the current period.
+  // Each invoice has:
+  //   - Base subscription fee line item
+  //   - Usage-based line items (SOFT quota + METERED features)
+  //   - Corresponding billing ledger CHARGE entry
+  //
+  // Uses the overage calculator to validate billing math
+  // against seed usage data.
+  //
+  // Idempotent: checks for existing invoice before creating.
+  // =========================================================
+
+  console.log('\n--- Invoices & Ledger ---');
+
+  type InvoiceSeedDef = {
+    tenantId: string;
+    tenantLabel: string;
+    planLabel: string;
+    baseFeeCents: number;
+    lineItems: Array<{
+      description: string;
+      featureLookupKey: string | null;
+      quantity: number;
+      unitPriceMicroCents: number;
+      amount: number;
+      sortOrder: number;
+    }>;
+  };
+
+  // Build invoice definitions using seed usage data
+  // Acme (Pro $99/mo): 35k/50k api_calls (no overage), 7/10 GB storage (no overage)
+  // Globex (Starter $29/mo): 950/1k api_calls HARD (no overage on HARD), 1/1 GB storage (no overage)
+  // Stark (Enterprise $4788/yr): 50k/500k api_calls (no overage), 25/100 GB storage (no overage)
+  const invoiceDefs: InvoiceSeedDef[] = [
+    {
+      tenantId: acme.id,
+      tenantLabel: 'Acme',
+      planLabel: 'Pro plan - monthly',
+      baseFeeCents: 9900,
+      lineItems: [
+        {
+          description: 'Pro plan - monthly',
+          featureLookupKey: null,
+          quantity: 1,
+          unitPriceMicroCents: 990000,
+          amount: 9900,
+          sortOrder: 0,
+        },
+        {
+          description: 'Api Calls overage (35,000 used, 50,000 included)',
+          featureLookupKey: 'api_calls',
+          quantity: 0,
+          unitPriceMicroCents: 10,
+          amount: 0,
+          sortOrder: 1,
+        },
+        {
+          description: 'Storage (7 used, 10 included)',
+          featureLookupKey: 'storage',
+          quantity: 0,
+          unitPriceMicroCents: 200,
+          amount: 0,
+          sortOrder: 2,
+        },
+        {
+          description: 'Team Seats overage (0 used, 10 included)',
+          featureLookupKey: 'team_seats',
+          quantity: 0,
+          unitPriceMicroCents: 100000,
+          amount: 0,
+          sortOrder: 3,
+        },
+      ],
+    },
+    {
+      tenantId: globex.id,
+      tenantLabel: 'Globex',
+      planLabel: 'Starter plan - monthly',
+      baseFeeCents: 2900,
+      lineItems: [
+        {
+          description: 'Starter plan - monthly',
+          featureLookupKey: null,
+          quantity: 1,
+          unitPriceMicroCents: 290000,
+          amount: 2900,
+          sortOrder: 0,
+        },
+        {
+          description: 'Storage (1 used, 1 included)',
+          featureLookupKey: 'storage',
+          quantity: 0,
+          unitPriceMicroCents: 500,
+          amount: 0,
+          sortOrder: 1,
+        },
+      ],
+    },
+    {
+      tenantId: stark.id,
+      tenantLabel: 'Stark',
+      planLabel: 'Enterprise plan - annually',
+      baseFeeCents: 478800,
+      lineItems: [
+        {
+          description: 'Enterprise plan - annually',
+          featureLookupKey: null,
+          quantity: 1,
+          unitPriceMicroCents: 4788000,
+          amount: 478800,
+          sortOrder: 0,
+        },
+        {
+          description: 'Api Calls overage (50,000 used, 500,000 included)',
+          featureLookupKey: 'api_calls',
+          quantity: 0,
+          unitPriceMicroCents: 5,
+          amount: 0,
+          sortOrder: 1,
+        },
+        {
+          description: 'Storage (25 used, 100 included)',
+          featureLookupKey: 'storage',
+          quantity: 0,
+          unitPriceMicroCents: 100,
+          amount: 0,
+          sortOrder: 2,
+        },
+        {
+          description: 'Team Seats overage (0 used, 50 included)',
+          featureLookupKey: 'team_seats',
+          quantity: 0,
+          unitPriceMicroCents: 80000,
+          amount: 0,
+          sortOrder: 3,
+        },
+      ],
+    },
+  ];
+
+  // Track invoice sequence for generating numbers
+  let invoiceSeq = 0;
+
+  for (const inv of invoiceDefs) {
+    const subscriptionId = subscriptionMap.get(inv.tenantId);
+    if (!subscriptionId) {
+      console.log(`  SKIP ${inv.tenantLabel}: no active subscription`);
+      continue;
+    }
+
+    // Check if invoice already exists for this tenant + period
+    const existingInvoice = await prisma.invoice.findFirst({
+      where: {
+        tenantId: inv.tenantId,
+        periodStart: periodStart,
+        periodEnd: periodEnd,
+        status: { in: ['FINALIZED', 'PAID'] },
+      },
+      select: { invoiceNumber: true },
+    });
+
+    if (existingInvoice) {
+      console.log(
+        `  ${inv.tenantLabel}: invoice already exists (${existingInvoice.invoiceNumber})`,
+      );
+      continue;
+    }
+
+    invoiceSeq++;
+    const total = inv.lineItems.reduce((sum, li) => sum + li.amount, 0);
+    const invoiceNumber = `INV-${year}-${String(invoiceSeq).padStart(4, '0')}`;
+    const dueDate = new Date(periodEnd.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+    // Create invoice + line items + ledger entry in transaction
+    await prisma.$transaction(async (tx) => {
+      const invoice = await tx.invoice.create({
+        data: {
+          tenantId: inv.tenantId,
+          subscriptionId,
+          invoiceNumber,
+          status: 'FINALIZED',
+          currency: 'usd',
+          subtotal: total,
+          total,
+          periodStart,
+          periodEnd,
+          dueDate,
+          finalizedAt: new Date(),
+        },
+      });
+
+      await tx.invoiceLineItem.createMany({
+        data: inv.lineItems.map((li) => ({
+          invoiceId: invoice.id,
+          description: li.description,
+          featureLookupKey: li.featureLookupKey,
+          quantity: li.quantity,
+          unitPriceMicroCents: li.unitPriceMicroCents,
+          amount: li.amount,
+          sortOrder: li.sortOrder,
+        })),
+      });
+
+      await tx.billingLedgerEntry.create({
+        data: {
+          tenantId: inv.tenantId,
+          invoiceId: invoice.id,
+          type: 'CHARGE',
+          description: `Invoice ${invoiceNumber} finalized`,
+          debit: total,
+          credit: 0,
+          currency: 'usd',
+        },
+      });
+    });
+
+    // Upsert the invoice sequence counter to stay consistent
+    await prisma.$executeRawUnsafe(
+      `INSERT INTO invoice_sequences (year, last_value)
+      VALUES ($1, $2)
+      ON CONFLICT (year)
+      DO UPDATE SET last_value = GREATEST(invoice_sequences.last_value, $2)`,
+      year,
+      invoiceSeq,
+    );
+
+    console.log(
+      `  ${inv.tenantLabel} → ${invoiceNumber} (${inv.planLabel}): $${(total / 100).toFixed(2)}`,
+    );
+  }
+
+  // =========================================================
   // SUMMARY
   // =========================================================
 
@@ -1111,6 +1345,9 @@ async function main(): Promise<void> {
     prisma.entitlementSnapshot.count(),
     prisma.usageEvent.count(),
     prisma.usageAggregate.count(),
+    prisma.invoice.count(),
+    prisma.invoiceLineItem.count(),
+    prisma.billingLedgerEntry.count(),
   ]);
 
   console.log(`
@@ -1127,6 +1364,9 @@ async function main(): Promise<void> {
     Entitlement Snapshots: ${counts[9]}
     Usage Events:         ${counts[10]}
     Usage Aggregates:     ${counts[11]}
+    Invoices:             ${counts[12]}
+    Invoice Line Items:   ${counts[13]}
+    Ledger Entries:       ${counts[14]}
 
   Dev login credentials (all passwords: ${DEV_PASSWORD}):
     alice@meterplex.dev  → OWNER of Acme, ADMIN of Globex
@@ -1144,6 +1384,11 @@ async function main(): Promise<void> {
     Acme (Pro):        35,000 api_calls (70%), 7 GB storage
     Globex (Starter):  950 api_calls (95% near HARD limit), 1 GB storage
     Stark (Enterprise): 50,000 api_calls (10%), 25 GB storage
+
+  Dev invoices (FINALIZED):
+    Acme → INV-${year}-0001: $99.00 (Pro monthly, no overage)
+    Globex → INV-${year}-0002: $29.00 (Starter monthly, no overage)
+    Stark → INV-${year}-0003: $4,788.00 (Enterprise annual, no overage)
 `);
 }
 

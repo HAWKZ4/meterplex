@@ -88,7 +88,7 @@ export class InvoiceGenerationService {
       description: baseFeeLabel,
       featureLookupKey: null,
       quantity: 1,
-      unitPriceMicroCents: price.amount * 10000, // cents → micro-cents
+      unitPriceMicroCents: price.amount * 100, // cents → micro-cents (1 cent = 100 micro-cents)
       amount: price.amount, // already in cents
       sortOrder: 0,
     });
@@ -254,7 +254,7 @@ export class InvoiceGenerationService {
       description: `${plan.name} plan - ${price.interval.toLowerCase()} (prorated: ${daysUsed}/${totalDays} days)`,
       featureLookupKey: null,
       quantity: 1,
-      unitPriceMicroCents: proratedAmount * 10000,
+      unitPriceMicroCents: proratedAmount * 100,
       amount: proratedAmount,
       sortOrder: 0,
     });
