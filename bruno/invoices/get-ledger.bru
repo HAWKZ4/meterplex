@@ -1,0 +1,23 @@
+meta {
+  name: Get Billing Ledger
+  type: http
+  seq: 1
+}
+
+get {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/billing/ledger?page=1&limit=20
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  x-tenant-id: {{tenantId}}
+}
+
+params:query {
+  page: 1
+  limit: 20
+}

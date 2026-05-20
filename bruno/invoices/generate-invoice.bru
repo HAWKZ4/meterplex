@@ -1,0 +1,24 @@
+meta {
+  name: Generate Invoice
+  type: http
+  seq: 4
+}
+
+post {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/invoices/generate
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  x-tenant-id: {{tenantId}}
+}
+
+script:post-response {
+  if (res.status === 201) {
+    bru.setEnvVar("invoiceId", res.body.id);
+  }
+}

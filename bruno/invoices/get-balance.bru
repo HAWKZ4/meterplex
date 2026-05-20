@@ -1,0 +1,18 @@
+meta {
+  name: Get Billing Balance
+  type: http
+  seq: 2
+}
+
+get {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/billing/balance
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  x-tenant-id: {{tenantId}}
+}

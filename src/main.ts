@@ -168,6 +168,41 @@ async function bootstrap(): Promise<void> {
       )
       .setVersion(API_VERSION)
       .addBearerAuth()
+      .addTag(
+        'Auth',
+        'Authentication, token generation, and registration flows',
+      )
+      .addTag('Users', 'User account profile management')
+      .addTag(
+        'Tenants',
+        'Organization management, settings, and role memberships',
+      )
+      .addTag(
+        'API Keys',
+        'Server-to-server API key management for authentication',
+      )
+      .addTag('Plans', 'Global pricing plan definitions')
+      .addTag(
+        'Plan Prices',
+        'Billing pricing tiers (base fees and overage costs)',
+      )
+      .addTag(
+        'Features',
+        'Global feature catalog definition (metered, boolean, etc.)',
+      )
+      .addTag('Subscriptions', 'Tenant plan subscription lifecycle')
+      .addTag('Entitlements', 'Static definitions of plan features and limits')
+      .addTag(
+        'Entitlement Checks',
+        'Runtime checks for customer access and quotas',
+      )
+      .addTag('Usage Events', 'High-throughput usage ingestion endpoint')
+      .addTag(
+        'Invoices',
+        'Draft generation, lifecycle, and invoice item details',
+      )
+      .addTag('Billing', 'Tenant double-entry ledger and balance querying')
+      .addTag('Health', 'System uptime and dependency checks')
       .build();
 
     const document = SwaggerModule.createDocument(app, swaggerConfig);

@@ -32,7 +32,8 @@ jobs:
     if: |
       (github.event_name != 'workflow_dispatch' || github.actor == github.repository_owner) &&
       github.event.pull_request.user.login != 'renovate[bot]' &&
-      !contains(github.event.pull_request.labels.*.name, 'release')
+      !contains(github.event.pull_request.labels.*.name, 'release') &&
+      (github.event_name == 'workflow_dispatch' || github.event.pull_request.commits > 1)
     steps:
       - name: Harden Runner 🛡️
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -73,9 +74,13 @@ jobs:
           CURRENT_BODY=$(gh pr view "$PR_NUMBER" --json body --template '{{.body}}')
 
           if [[ ! "$CURRENT_BODY" == *"<!-- autofill-start -->"* ]]; then
-            echo "No tags found, generating minimalist body..."
-            # Using printf to avoid heredoc indentation issues in YAML
-            CURRENT_BODY=$(printf "<!-- autofill-start -->\n<!-- autofill-end -->")
+            if [[ -z "$CURRENT_BODY" ]]; then
+              echo "No tags found and body is empty, generating tags..."
+              CURRENT_BODY=$(printf "<!-- autofill-start -->\n<!-- autofill-end -->")
+            else
+              echo "No tags found and body is not empty, appending tags..."
+              CURRENT_BODY=$(printf "%s\n\n<!-- autofill-start -->\n<!-- autofill-end -->" "$CURRENT_BODY")
+            fi
           fi
 
           # 4. Perform a surgical replacement of the content between tags

@@ -40,8 +40,8 @@ App runs at `http://localhost:3000`. API docs at `http://localhost:3000/api/docs
 | 1     | Multi-tenant identity and access (auth, tenants, users, API keys) | ✅ Complete |
 | 2     | Plans, entitlements, and quotas                                   | ✅ Complete |
 | 3     | Usage ingestion, outbox pattern, Kafka pipeline                   | ✅ Complete |
-| 4     | Billing ledger and invoices                                       | 🔜 Next     |
-| 5     | Payments and webhooks                                             |             |
+| 4     | Billing ledger and invoices                                       | ✅ Complete |
+| 5     | Payments and webhooks                                             | 🔜 Next     |
 | 6     | Admin, audit log, reconciliation                                  |             |
 | 7     | Observability (Grafana, Loki, OpenTelemetry)                      |             |
 | 8     | Scale, hardening, load testing                                    |             |
@@ -158,6 +158,29 @@ App runs at `http://localhost:3000`. API docs at `http://localhost:3000/api/docs
 | Method | Path                   | Description                                 |
 | :----- | :--------------------- | :------------------------------------------ |
 | POST   | `/api/v1/usage/events` | Submit batch of usage events (API key auth) |
+
+---
+
+### Phase 4 - Billing & Invoices
+
+#### Invoices
+
+| Method | Path                              | Description                                   |
+| ------ | --------------------------------- | --------------------------------------------- |
+| GET    | `/api/v1/invoices`                | List invoices (paginated)                     |
+| GET    | `/api/v1/invoices/:id`            | Get invoice with line items                   |
+| GET    | `/api/v1/invoices/:id/line-items` | Get line items only                           |
+| POST   | `/api/v1/invoices/generate`       | Generate invoice (auto-detects full/prorated) |
+| POST   | `/api/v1/invoices/:id/finalize`   | DRAFT → FINALIZED                             |
+| POST   | `/api/v1/invoices/:id/mark-paid`  | FINALIZED → PAID                              |
+| POST   | `/api/v1/invoices/:id/void`       | DRAFT/FINALIZED → VOID                        |
+
+#### Billing
+
+| Method | Path                      | Description                     |
+| ------ | ------------------------- | ------------------------------- |
+| GET    | `/api/v1/billing/ledger`  | List ledger entries (paginated) |
+| GET    | `/api/v1/billing/balance` | Get tenant balance              |
 
 ---
 

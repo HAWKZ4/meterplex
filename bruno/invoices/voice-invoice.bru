@@ -1,0 +1,18 @@
+meta {
+  name: Void Invoice
+  type: http
+  seq: 7
+}
+
+post {
+  url: {{baseUrl}}/{{apiPrefix}}/v1/invoices/{{invoiceId}}/void
+  auth: bearer
+}
+
+auth:bearer {
+  token: {{accessToken}}
+}
+
+headers {
+  x-tenant-id: {{tenantId}}
+}

@@ -80,6 +80,7 @@ nav:
       - Audit Log: architecture/audit-log.md
       - Plans & Entitlements: architecture/phase-2-plans-and-entitlements.md
       - Usage Event Pipeline: architecture/phase-3-usage-event-pipeline.md
+      - Billing & Invoices: architecture/phase-4-billing-ledger.md
   - Development:
       - Setup Guide: development/setup.md
   - API Reference:
@@ -95,6 +96,7 @@ nav:
           - 'Phase 1: Identity & Access': phases/phase-1.md
           - 'Phase 2: Plans & Entitlements': phases/phase-2.md
           - 'Phase 3: Usage Pipeline': phases/phase-3.md
+          - 'Phase 4: Billing & Invoices': phases/phase-4.md
   - Maintenance:
       - CI/CD & Automation: maintenance/ci-cd.md
   - Community:
@@ -120,4 +122,4 @@ extra:
     provider: google
     property: !ENV [GOOGLE_ANALYTICS_ID, '']
 
-copyright: Copyright &copy; 2026 Chitrank Agnihotri &bull; Built with MkDocs Material
+copyright: Copyright &copy; 2026 Chitrank Agnihotri
