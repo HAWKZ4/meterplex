@@ -109,6 +109,24 @@ export class EnvConfig {
 
   @IsString()
   JWT_REFRESH_EXPIRATION: string = '7d';
+
+  // --- Payment Provider ---
+
+  @IsString()
+  PAYMENT_PROVIDER: string = 'fake';
+
+  @IsString()
+  @IsOptional()
+  STRIPE_SECRET_KEY?: string;
+
+  @IsString()
+  @IsOptional()
+  STRIPE_WEBHOOK_SECRET?: string;
+
+  @IsNumber()
+  @Min(1)
+  @IsOptional()
+  FAKE_PAYMENT_SUCCESS_RATE?: number = 90;
 }
 
 /**

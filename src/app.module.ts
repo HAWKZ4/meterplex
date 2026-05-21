@@ -20,6 +20,7 @@ import { EntitlementCheckModule } from '@modules/entitlement-check';
 import { EntitlementsModule } from '@modules/entitlements';
 import { FeaturesModule } from '@modules/features';
 import { InvoicesModule } from '@modules/invoices';
+import { PaymentsModule } from '@modules/payments';
 import { PlanPricesModule } from '@modules/plan-prices';
 import { PlansModule } from '@modules/plans';
 import { SubscriptionsModule } from '@modules/subscriptions';
@@ -69,6 +70,7 @@ import { PrismaModule } from './prisma';
     OutboxModule,
     UsagePipelineModule,
     InvoicesModule,
+    PaymentsModule,
   ],
   controllers: [],
   providers: [
