@@ -89,6 +89,8 @@ const PATH_TO_RESOURCE: Record<string, string> = {
   usage: 'usage_event',
   invoices: 'invoice',
   billing: 'billing_ledger',
+  payments: 'payment_attempt',
+  webhooks: 'webhook_event',
 };
 
 /**

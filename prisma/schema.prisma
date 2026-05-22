@@ -94,7 +94,8 @@ model Tenant {
   subscriptions        Subscription[]
   billingLedgerEntries BillingLedgerEntry[]
   invoices             Invoice[]
-
+  paymentAttempts PaymentAttempt[]
+  
   @@map("tenants")
 }
 
@@ -1428,6 +1429,7 @@ model Invoice {
   /// Relations
   lineItems     InvoiceLineItem[]
   ledgerEntries BillingLedgerEntry[]
+  paymentAttempts PaymentAttempt[]
 
   @@index([tenantId])
   @@index([status])
@@ -1581,4 +1583,170 @@ model InvoiceSequence {
   lastValue Int @default(0) @map("last_value")
 
   @@map("invoice_sequences")
+}
+
+// =============================================================
+// Phase 5 Enums - Payments and Webhooks
+// =============================================================
+
+/// Status of a payment attempt.
+/// PENDING:   Payment intent created, awaiting provider confirmation.
+/// SUCCEEDED: Provider confirmed payment received.
+/// FAILED:    Provider reported payment failure.
+/// CANCELLED: Payment cancelled before completion.
+/// REQUIRES_ACTION: Needs customer action (3D Secure, redirect, etc.)
+enum PaymentAttemptStatus {
+  PENDING
+  SUCCEEDED
+  FAILED
+  CANCELLED
+  REQUIRES_ACTION
+
+  @@map("payment_attempt_status")
+}
+
+/// Processing status of a webhook event.
+/// PENDING:    Received, not yet processed.
+/// PROCESSING: Currently being handled.
+/// PROCESSED:  Successfully handled.
+/// FAILED:     Processing failed (will not auto-retry).
+/// SKIPPED:    Intentionally ignored (unhandled event type).
+enum WebhookEventStatus {
+  PENDING
+  PROCESSING
+  PROCESSED
+  FAILED
+  SKIPPED
+
+  @@map("webhook_event_status")
+}
+
+// =============================================================
+// PaymentAttempt - Individual payment attempt for an invoice.
+//
+// One invoice may have multiple attempts (retries after failure).
+// Each attempt tracks the provider payment intent ID, status,
+// failure reason, and timestamps.
+//
+// Design decisions:
+//   - Links to invoice via FK. Invoice must exist.
+//   - tenantId stored separately for index/filtering without JOIN.
+//   - providerPaymentId is the Stripe pi_... or fake_pi_... ID.
+//     UNIQUE - one attempt per provider payment intent.
+//   - providerResponse stores the raw provider response JSON
+//     for debugging. Not parsed, not relied on for logic.
+//   - retryOf links to the previous failed attempt (retry chain).
+//   - Amount and currency denormalized from invoice for quick
+//     display without JOIN.
+// =============================================================
+
+model PaymentAttempt {
+  /// UUID v4 primary key.
+  id String @id @default(uuid()) @db.Uuid
+
+  /// The invoice being paid.
+  invoiceId String  @map("invoice_id") @db.Uuid
+  invoice   Invoice @relation(fields: [invoiceId], references: [id])
+
+  /// Tenant for filtering. Denormalized from invoice.
+  tenantId String @map("tenant_id") @db.Uuid
+  tenant   Tenant @relation(fields: [tenantId], references: [id])
+
+  /// Provider-specific payment intent ID (e.g., pi_..., fake_pi_...).
+  /// UNIQUE - one attempt per provider payment intent.
+  providerPaymentId String @unique @map("provider_payment_id") @db.VarChar(255)
+
+  /// Which provider processed this payment.
+  provider String @db.VarChar(50)
+
+  /// Current payment status.
+  status PaymentAttemptStatus @default(PENDING)
+
+  /// Amount in smallest currency unit (cents). Denormalized from invoice.
+  amount Int
+
+  /// ISO 4217 currency code. Denormalized from invoice.
+  currency String @default("usd") @db.VarChar(3)
+
+  /// Provider-specific failure reason. Null if not failed.
+  failureReason String? @map("failure_reason") @db.VarChar(1000)
+
+  /// Raw provider response for debugging. Not parsed for logic.
+  providerResponse Json? @map("provider_response") @db.JsonB
+
+  /// If this is a retry, links to the previous failed attempt.
+  retryOf String? @map("retry_of") @db.Uuid
+
+  /// Which retry number this is (0 = first attempt, 1 = first retry, etc.)
+  attemptNumber Int @default(0) @map("attempt_number")
+
+  /// When the next retry is scheduled (null if not retrying).
+  nextRetryAt DateTime? @map("next_retry_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([invoiceId])
+  @@index([tenantId])
+  @@index([status])
+  @@index([nextRetryAt])
+  @@map("payment_attempts")
+}
+
+// =============================================================
+// WebhookEvent - Raw webhook payloads from payment providers.
+//
+// Every webhook received is persisted before processing.
+// Serves three purposes:
+//   1. Deduplication: providerEventId is UNIQUE. If Stripe sends
+//      the same event twice, the second INSERT fails.
+//   2. Debugging: full payload preserved for investigation.
+//   3. Replay: failed events can be reprocessed from this table.
+//
+// Design decisions:
+//   - providerEventId is the Stripe evt_... ID. UNIQUE constraint
+//     is the deduplication mechanism.
+//   - status tracks processing lifecycle. PENDING → PROCESSING →
+//     PROCESSED (or FAILED).
+//   - rawPayload stores the complete webhook body as received.
+//     Never modified after creation.
+//   - processingError captures the error message if processing fails.
+//   - No FK to payment_attempts or invoices. The webhook handler
+//     resolves references during processing. Raw storage must
+//     succeed even if the referenced entities don't exist yet
+//     (out-of-order delivery).
+// =============================================================
+
+model WebhookEvent {
+  /// UUID v4 primary key.
+  id String @id @default(uuid()) @db.Uuid
+
+  /// Provider event ID (e.g., evt_... for Stripe). Deduplication key.
+  providerEventId String @unique @map("provider_event_id") @db.VarChar(255)
+
+  /// Which provider sent this webhook.
+  provider String @db.VarChar(50)
+
+  /// Event type as received from the provider (e.g., 'payment_intent.succeeded').
+  eventType String @map("event_type") @db.VarChar(100)
+
+  /// Processing status.
+  status WebhookEventStatus @default(PENDING)
+
+  /// Full webhook payload as received. Immutable after creation.
+  rawPayload Json @map("raw_payload") @db.JsonB
+
+  /// Error message if processing failed. Null if not failed.
+  processingError String? @map("processing_error") @db.Text
+
+  /// When processing started.
+  processedAt DateTime? @map("processed_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([status])
+  @@index([eventType])
+  @@index([createdAt])
+  @@map("webhook_events")
 }

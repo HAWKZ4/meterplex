@@ -161,4 +161,18 @@ export const ERRORS = {
       `Cannot transition invoice from ${from} to ${to}`,
     ALREADY_EXISTS: 'Invoice already exists for this billing period',
   },
+  /**
+   * Payment related error messages
+   */
+  PAYMENT: {
+    NOT_FOUND: 'Payment attempt not found or does not belong to this tenant',
+    ALREADY_SUCCEEDED: 'Payment has already succeeded',
+    INVOICE_NOT_FINALIZED: 'Cannot create payment for non-FINALIZED invoice',
+    WEBHOOK_SIGNATURE_INVALID: 'Webhook signature validation failed',
+    WEBHOOK_DUPLICATE: 'Webhook event already processed',
+    WEBHOOK_UNHANDLED_TYPE: (type: string) =>
+      `Unhandled webhook event type: "${type}"`,
+    MAX_RETRIES_EXCEEDED: (invoiceId: string) =>
+      `Maximum payment retries exceeded for invoice "${invoiceId}"`,
+  },
 } as const;
