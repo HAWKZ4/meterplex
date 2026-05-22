@@ -16,6 +16,7 @@ import {
   Get,
   HttpCode,
   HttpStatus,
+  Logger,
   NotFoundException,
   Param,
   ParseUUIDPipe,
@@ -41,6 +42,7 @@ import { ErrorResponseDto } from '@common/dto';
 import { RolesGuard, TenantGuard } from '@common/guards';
 
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
+import { PaymentIntentService } from '@modules/payments/payment-intent.service';
 
 import { MembershipRole } from '@prisma/client';
 
@@ -58,10 +60,13 @@ import { InvoiceLifecycleService } from './invoice-lifecycle.service';
   version: '1',
 })
 export class InvoicesController {
+  private readonly logger = new Logger(InvoicesController.name);
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly invoiceGeneration: InvoiceGenerationService,
     private readonly invoiceLifecycle: InvoiceLifecycleService,
+    private readonly paymentIntentService: PaymentIntentService,
   ) {}
 
   /**
@@ -294,7 +299,23 @@ export class InvoicesController {
     @Param('id', ParseUUIDPipe) id: string,
     @TenantId() tenantId: string,
   ) {
-    return this.invoiceLifecycle.finalize(id, tenantId);
+    const result = await this.invoiceLifecycle.finalize(id, tenantId);
+
+    // Create payment intent - fire-and-forget (don't block the response)
+    this.paymentIntentService
+      .createForInvoice(id, tenantId, result.total, result.currency)
+      .then((attempt) => {
+        this.logger.log(
+          `Payment intent created for ${result.invoiceNumber}: ${attempt.providerPaymentId}`,
+        );
+      })
+      .catch((error) => {
+        this.logger.error(
+          `Failed to create payment intent for ${result.invoiceNumber}: ${error instanceof Error ? error.message : String(error)}`,
+        );
+      });
+
+    return result;
   }
 
   /**

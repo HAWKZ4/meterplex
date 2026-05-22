@@ -9,3 +9,10 @@ export {
 } from './payment-provider.base';
 export { FakePaymentAdapter } from './adapters/fake-payment.adapter';
 export { StripePaymentAdapter } from './adapters/stripe-payment.adapter';
+export { PaymentIntentService } from './payment-intent.service';
+export { WebhookProcessingService } from './webhook-processing.service';
+export {
+  PaymentAttemptResponseDto,
+  PaymentAttemptListResponseDto,
+} from './dto';
+export { WebhookEventResponseDto } from './dto';

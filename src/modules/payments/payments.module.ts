@@ -1,24 +1,18 @@
 /**
- * PaymentsModule - Payment provider integration.
- *
- * Selects the adapter based on PAYMENT_PROVIDER env var:
- *   - 'stripe': real Stripe SDK (requires STRIPE_SECRET_KEY)
- *   - 'fake' (default): simulated payments for dev/testing
- *
- * To add a new provider:
- *   1. Create adapters/new-provider.adapter.ts extending PaymentProviderBase
- *   2. Implement the 4 abstract methods
- *   3. Add a case to the switch below
- *   4. Add env vars for the provider's API keys
- *
- * The adapter is injected via the PAYMENT_PROVIDER token.
- * Services use: @Inject(PAYMENT_PROVIDER) private readonly payments: PaymentProviderBase
+ * PaymentsModule - Payment provider integration, webhook handling, payment lifecycle.
  */
 import { Global, Logger, Module } from '@nestjs/common';
 
+import { InvoicesModule } from '@modules/invoices';
+
 import { FakePaymentAdapter } from './adapters/fake-payment.adapter';
 import { StripePaymentAdapter } from './adapters/stripe-payment.adapter';
+import { PaymentFailureHandler } from './handlers/payment-failure.handler';
+import { PaymentSuccessHandler } from './handlers/payment-success.handler';
+import { PaymentIntentService } from './payment-intent.service';
 import { PAYMENT_PROVIDER } from './payment-provider.base';
+import { WebhookProcessingService } from './webhook-processing.service';
+import { WebhookController } from './webhook.controller';
 
 const logger = new Logger('PaymentsModule');
 
@@ -43,7 +37,15 @@ const paymentProviderFactory = {
 
 @Global()
 @Module({
-  providers: [paymentProviderFactory],
-  exports: [PAYMENT_PROVIDER],
+  imports: [InvoicesModule],
+  controllers: [WebhookController],
+  providers: [
+    paymentProviderFactory,
+    PaymentIntentService,
+    WebhookProcessingService,
+    PaymentSuccessHandler,
+    PaymentFailureHandler,
+  ],
+  exports: [PAYMENT_PROVIDER, PaymentIntentService],
 })
 export class PaymentsModule {}
