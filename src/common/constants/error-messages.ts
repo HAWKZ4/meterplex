@@ -20,6 +20,7 @@ export const ERRORS = {
     SLUG_EXISTS: (slug: string) => `Tenant with slug "${slug}" already exists`,
     NOT_FOUND_ID: (id: string) => `Tenant with ID "${id}" not found`,
     NOT_FOUND_SLUG: (slug: string) => `Tenant with slug "${slug}" not found`,
+    ID_MISMATCH: 'URL tenant ID does not match x-tenant-id header',
   },
   /**
    * User related error messages

@@ -6,7 +6,7 @@ The payment system collects money for invoices. It integrates with payment provi
 
 ## Why this exists
 
-Phase 4 generates invoices and tracks what tenants owe. But `mark-paid` was manual — someone had to call an endpoint to confirm payment. Phase 5 automates this: finalize an invoice → create a payment intent → provider charges the card → webhook confirms → invoice marked PAID → billing period advances.
+Phase 4 generates invoices and tracks what tenants owe. But `mark-paid` was manual - someone had to call an endpoint to confirm payment. Phase 5 automates this: finalize an invoice → create a payment intent → provider charges the card → webhook confirms → invoice marked PAID → billing period advances.
 
 ---
 
@@ -55,7 +55,7 @@ Two new tables:
 
 - **Invoice → PaymentAttempts:** one-to-many. One invoice can have multiple attempts (retries after failure).
 - **Tenant → PaymentAttempts:** one-to-many. Denormalized `tenant_id` for filtering without JOIN.
-- **WebhookEvents:** standalone. Not FK'd to anything — the provider event ID is the deduplication key.
+- **WebhookEvents:** standalone. Not FK'd to anything - the provider event ID is the deduplication key.
 
 ---
 
@@ -83,7 +83,7 @@ Two implementations:
 | `FakePaymentAdapter`   | `PAYMENT_PROVIDER=fake`   | In-memory, no external calls. Configurable success rate. |
 | `StripePaymentAdapter` | `PAYMENT_PROVIDER=stripe` | Real Stripe API. Signature validation on webhooks.       |
 
-The adapter is injected via `PAYMENT_PROVIDER` token. Swapping providers requires zero code changes — just change the env var.
+The adapter is injected via `PAYMENT_PROVIDER` token. Swapping providers requires zero code changes - just change the env var.
 
 ### Why an adapter and not direct Stripe calls
 
@@ -160,7 +160,7 @@ Three problems every webhook receiver must solve:
 
 **Duplicates:** The `provider_event_id` column on `webhook_events` has a UNIQUE constraint. Before processing, we check if the event already exists. If it does and status is PROCESSED, skip. This is the deduplication gate.
 
-**Out-of-order:** The `PaymentSuccessHandler` looks up the payment attempt by `provider_payment_id`. If the attempt doesn't exist yet (race condition), the handler logs a warning and returns — the event is marked PROCESSED to prevent retries. The payment attempt creation will handle the success state independently since the fake adapter returns the final status synchronously.
+**Out-of-order:** The `PaymentSuccessHandler` looks up the payment attempt by `provider_payment_id`. If the attempt doesn't exist yet (race condition), the handler logs a warning and returns - the event is marked PROCESSED to prevent retries. The payment attempt creation will handle the success state independently since the fake adapter returns the final status synchronously.
 
 **Timeouts:** The webhook endpoint returns 200 immediately, then processes asynchronously. The provider sees success and doesn't retry. Processing happens in the background.
 
@@ -210,7 +210,7 @@ WebhookEvent statuses:
 
 ## API endpoints
 
-### Webhooks (no auth — signature is the auth)
+### Webhooks (no auth - signature is the auth)
 
 | Method | Path             | Description                    |
 | ------ | ---------------- | ------------------------------ |

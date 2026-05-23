@@ -29,6 +29,7 @@ import {
   Body,
   Controller,
   Delete,
+  ForbiddenException,
   Get,
   HttpCode,
   HttpStatus,
@@ -49,7 +50,8 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { CurrentUser, Roles } from '@common/decorators';
+import { ERRORS } from '@common/constants';
+import { CurrentUser, Roles, TenantId } from '@common/decorators';
 import { ErrorResponseDto } from '@common/dto';
 import { RolesGuard, TenantGuard } from '@common/guards';
 
@@ -262,8 +264,13 @@ export class TenantsController {
   })
   async update(
     @Param('id', ParseUUIDPipe) id: string,
+    @TenantId() tenantId: string,
     @Body() dto: UpdateTenantDto,
   ) {
+    if (id !== tenantId) {
+      throw new ForbiddenException(ERRORS.TENANT.ID_MISMATCH);
+    }
+
     return this.tenantsService.update(id, dto);
   }
 
@@ -302,7 +309,14 @@ export class TenantsController {
     description: 'Tenant not found',
     type: ErrorResponseDto,
   })
-  async remove(@Param('id', ParseUUIDPipe) id: string) {
+  async remove(
+    @Param('id', ParseUUIDPipe) id: string,
+    @TenantId() tenantId: string,
+  ) {
+    if (id !== tenantId) {
+      throw new ForbiddenException(ERRORS.TENANT.ID_MISMATCH);
+    }
+
     return this.tenantsService.remove(id);
   }
 }

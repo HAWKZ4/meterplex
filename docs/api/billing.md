@@ -1,6 +1,6 @@
 # Billing API
 
-The Billing API provides access to ledger entries, balance, and payment history. All endpoints are tenant-scoped — they require a valid JWT and `x-tenant-id` header.
+The Billing API provides access to ledger entries, balance, and payment history. All endpoints are tenant-scoped - they require a valid JWT and `x-tenant-id` header.
 
 ---
 
@@ -16,7 +16,7 @@ Returns paginated ledger entries for the tenant, newest first.
 | :-------- | :----- | :------ | :---------------------------------------------------------- |
 | `page`    | number | 1       | Page number                                                 |
 | `limit`   | number | 20      | Results per page (max 100)                                  |
-| `type`    | string | —       | Filter by type: CHARGE, PAYMENT, CREDIT, REFUND, ADJUSTMENT |
+| `type`    | string | -       | Filter by type: CHARGE, PAYMENT, CREDIT, REFUND, ADJUSTMENT |
 
 ### Response
 
@@ -78,7 +78,7 @@ Returns paginated payment attempts for the tenant, newest first.
 | :-------- | :----- | :------ | :------------------------------------------------------------- |
 | `page`    | number | 1       | Page number                                                    |
 | `limit`   | number | 20      | Results per page (max 100)                                     |
-| `status`  | string | —       | Filter: PENDING, SUCCEEDED, FAILED, CANCELLED, REQUIRES_ACTION |
+| `status`  | string | -       | Filter: PENDING, SUCCEEDED, FAILED, CANCELLED, REQUIRES_ACTION |
 
 ### Response
 
@@ -155,7 +155,7 @@ Returns a single payment attempt with full provider response.
 
 ## Webhook Endpoints
 
-These endpoints receive events from payment providers. They have NO authentication guard — the provider's signature is the authentication.
+These endpoints receive events from payment providers. They have NO authentication guard - the provider's signature is the authentication.
 
 ### Stripe Webhook
 
