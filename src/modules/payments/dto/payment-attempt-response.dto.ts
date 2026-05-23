@@ -7,7 +7,11 @@ export class PaymentAttemptResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-...' })
   id!: string;
 
-  @ApiProperty({ example: 'e2fb5571-...' })
+  @ApiPropertyOptional({
+    example: 'INV-2026-0001',
+    nullable: true,
+    description: 'Invoice number (from joined invoice)',
+  })
   invoiceId!: string;
 
   @ApiProperty({ example: 'f239538d-...' })
