@@ -2,6 +2,15 @@
 
 All notable changes to the Meterplex API and core platform.
 
+## [0.8.2] - 2026-05-23
+
+### 🐛 Bug Fixes
+
+- **auth:** Handle purged refresh tokens with explicit null check (#193) ([94c9ced](https://github.com/chitrank2050/meterplex/commit/94c9cede2cde3af1c4cc0fce107d3ab2ad67faa9))
+
+### 🚀 Features
+
+- **security:** Implement Redis rate limiting with tiered limits (#192) ([2f2d224](https://github.com/chitrank2050/meterplex/commit/2f2d2248b2731b3eca0c48e01d25ef0fa9d39b25))
 ## [0.8.1] - 2026-05-23
 
 ### 🐛 Bug Fixes
