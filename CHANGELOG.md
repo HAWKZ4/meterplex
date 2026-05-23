@@ -2,6 +2,13 @@
 
 All notable changes to the Meterplex API and core platform.
 
+## [0.8.1] - 2026-05-23
+
+### 🐛 Bug Fixes
+
+- **security:** Reject tenant :id param vs x-tenant-id header mismatch (#188) ([8594e08](https://github.com/chitrank2050/meterplex/commit/8594e08c702bfe7ac1687f94f93d1f22f52b7660))
+- **security:** Add authorization checks to user update endpoint (#189) ([9030760](https://github.com/chitrank2050/meterplex/commit/9030760176713d4082c0c61e58841c3eab6598b6))
+- **security:** Add PlatformAdminGuard for catalog mutations (#190) ([22fc7de](https://github.com/chitrank2050/meterplex/commit/22fc7debd7c30827d477cecd848e60593aeaa256))
 ## [0.8.0] - 2026-05-23
 
 ### ⚙️ Maintenance
