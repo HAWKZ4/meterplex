@@ -44,7 +44,7 @@ export class CreateApiKeyResponseDto {
   })
   keyPrefix!: string;
 
-  @ApiProperty({ enum: ApiKeyStatus, example: 'ACTIVE' })
+  @ApiProperty({ enum: ApiKeyStatus, example: ApiKeyStatus.ACTIVE })
   status!: ApiKeyStatus;
 
   @ApiPropertyOptional({ example: '2026-07-04T12:00:00.000Z', nullable: true })
@@ -75,7 +75,7 @@ export class ApiKeyResponseDto {
   @ApiProperty({ example: 'mp_live_aB' })
   keyPrefix!: string;
 
-  @ApiProperty({ enum: ApiKeyStatus, example: 'ACTIVE' })
+  @ApiProperty({ enum: ApiKeyStatus, example: ApiKeyStatus.ACTIVE })
   status!: ApiKeyStatus;
 
   @ApiPropertyOptional({ example: '2026-07-04T12:00:00.000Z', nullable: true })
@@ -106,7 +106,7 @@ export class ApiKeyRevokedResponseDto {
   @ApiProperty({ example: 'mp_live_aB' })
   keyPrefix!: string;
 
-  @ApiProperty({ example: 'REVOKED' })
+  @ApiProperty({ example: ApiKeyStatus.REVOKED })
   status!: string;
 
   @ApiProperty({ example: '2026-04-04T12:00:00.000Z' })

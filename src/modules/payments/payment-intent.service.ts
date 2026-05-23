@@ -27,6 +27,8 @@ import { PrismaService } from '@app-prisma/prisma.service';
 
 import { ERRORS } from '@common/constants';
 
+import { InvoiceStatus } from '@prisma/client';
+
 import { PAYMENT_PROVIDER, PaymentProviderBase } from './payment-provider.base';
 
 /** Max payment retries before giving up. */
@@ -66,7 +68,7 @@ export class PaymentIntentService {
   ) {
     // Verify invoice is FINALIZED
     const invoice = await this.prisma.invoice.findFirst({
-      where: { id: invoiceId, tenantId, status: 'FINALIZED' },
+      where: { id: invoiceId, tenantId, status: InvoiceStatus.FINALIZED },
       select: { id: true, invoiceNumber: true },
     });
 

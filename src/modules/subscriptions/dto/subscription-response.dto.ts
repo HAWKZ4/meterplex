@@ -74,7 +74,7 @@ export class SubscriptionResponseDto {
 
   @ApiProperty({
     enum: SubscriptionStatus,
-    example: 'ACTIVE',
+    example: SubscriptionStatus.ACTIVE,
   })
   status!: string;
 

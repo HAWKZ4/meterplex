@@ -27,7 +27,7 @@ export class FeatureResponseDto {
   })
   description!: string | null;
 
-  @ApiProperty({ enum: PlanStatus, example: 'ACTIVE' })
+  @ApiProperty({ enum: PlanStatus, example: PlanStatus.ACTIVE })
   status!: PlanStatus;
 
   @ApiProperty({ example: { category: 'usage' } })

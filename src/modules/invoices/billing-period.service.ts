@@ -198,7 +198,9 @@ export class BillingPeriodService {
     const subscriptions = await this.prisma.subscription.findMany({
       where: {
         cancelledAt: { not: null },
-        status: { in: ['ACTIVE', 'CANCELLED'] },
+        status: {
+          in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.CANCELLED],
+        },
       },
       select: {
         id: true,

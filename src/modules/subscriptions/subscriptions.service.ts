@@ -34,7 +34,7 @@ import { PrismaService } from '@app-prisma/prisma.service';
 import { ERRORS } from '@common/constants';
 import { isNotFoundError } from '@common/utils/prisma-errors';
 
-import { SubscriptionStatus } from '@prisma/client';
+import { SubscriptionStatus, TenantStatus } from '@prisma/client';
 
 import { CreateSubscriptionDto } from './dto';
 
@@ -114,7 +114,7 @@ export class SubscriptionsService {
       throw new NotFoundException(ERRORS.PLAN.NOT_FOUND_ID(dto.planId));
     }
 
-    if (plan.status !== 'ACTIVE') {
+    if (plan.status !== TenantStatus.ACTIVE) {
       throw new BadRequestException(
         ERRORS.SUBSCRIPTION.PLAN_NOT_ACTIVE(plan.slug),
       );

@@ -37,7 +37,13 @@ import 'dotenv/config';
 import { createHash, randomBytes } from 'node:crypto';
 
 import { PrismaPg } from '@prisma/adapter-pg';
-import { PrismaClient } from '@prisma/client';
+import {
+  ApiKeyStatus,
+  InvoiceStatus,
+  LedgerEntryType,
+  PrismaClient,
+  SubscriptionStatus,
+} from '@prisma/client';
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL as string,
@@ -307,7 +313,7 @@ async function main(): Promise<void> {
       where: {
         tenantId: ak.tenantId,
         name: ak.name,
-        status: 'ACTIVE',
+        status: ApiKeyStatus.ACTIVE,
       },
     });
 
@@ -867,7 +873,9 @@ async function main(): Promise<void> {
     const existing = await prisma.subscription.findFirst({
       where: {
         tenantId: s.tenantId,
-        status: { in: ['ACTIVE', 'TRIALING'] },
+        status: {
+          in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING],
+        },
       },
       select: { id: true, plan: { select: { slug: true } } },
     });
@@ -920,7 +928,7 @@ async function main(): Promise<void> {
           tenantId: s.tenantId,
           planId: s.planId,
           priceId,
-          status: 'ACTIVE',
+          status: SubscriptionStatus.ACTIVE,
           currentPeriodStart: now,
           currentPeriodEnd: periodEnd,
           billingAnchor,
@@ -972,7 +980,12 @@ async function main(): Promise<void> {
   const subscriptionMap = new Map<string, string>(); // tenantId → subscriptionId
   for (const tenantId of [acme.id, globex.id, stark.id]) {
     const sub = await prisma.subscription.findFirst({
-      where: { tenantId, status: { in: ['ACTIVE', 'TRIALING'] } },
+      where: {
+        tenantId,
+        status: {
+          in: [SubscriptionStatus.ACTIVE, SubscriptionStatus.TRIALING],
+        },
+      },
       select: { id: true },
     });
     if (sub) subscriptionMap.set(tenantId, sub.id);
@@ -1259,7 +1272,7 @@ async function main(): Promise<void> {
         tenantId: inv.tenantId,
         periodStart: periodStart,
         periodEnd: periodEnd,
-        status: { in: ['FINALIZED', 'PAID'] },
+        status: { in: [InvoiceStatus.FINALIZED, InvoiceStatus.PAID] },
       },
       select: { invoiceNumber: true },
     });
@@ -1283,7 +1296,7 @@ async function main(): Promise<void> {
           tenantId: inv.tenantId,
           subscriptionId,
           invoiceNumber,
-          status: 'FINALIZED',
+          status: InvoiceStatus.FINALIZED,
           currency: 'usd',
           subtotal: total,
           total,
@@ -1310,7 +1323,7 @@ async function main(): Promise<void> {
         data: {
           tenantId: inv.tenantId,
           invoiceId: invoice.id,
-          type: 'CHARGE',
+          type: LedgerEntryType.CHARGE,
           description: `Invoice ${invoiceNumber} finalized`,
           debit: total,
           credit: 0,
@@ -1353,7 +1366,7 @@ async function main(): Promise<void> {
   const seedInvoices = await prisma.invoice.findMany({
     where: {
       tenantId: { in: [acme.id, globex.id, stark.id] },
-      status: { in: ['FINALIZED', 'PAID'] },
+      status: { in: [InvoiceStatus.FINALIZED, InvoiceStatus.PAID] },
       periodStart: periodStart,
       periodEnd: periodEnd,
     },
@@ -1445,7 +1458,7 @@ async function main(): Promise<void> {
       });
 
       // 3. Mark invoice as PAID (only if still FINALIZED)
-      if (invoice.status === 'FINALIZED') {
+      if (invoice.status === InvoiceStatus.FINALIZED) {
         await tx.invoice.update({
           where: { id: invoice.id },
           data: {
@@ -1459,7 +1472,7 @@ async function main(): Promise<void> {
           data: {
             tenantId: invoice.tenantId,
             invoiceId: invoice.id,
-            type: 'PAYMENT',
+            type: LedgerEntryType.PAYMENT,
             description: `Payment received for invoice ${invoice.invoiceNumber}`,
             debit: 0,
             credit: invoice.total,

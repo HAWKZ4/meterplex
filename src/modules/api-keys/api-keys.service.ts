@@ -186,7 +186,7 @@ export class ApiKeysService {
 
     const revoked = await this.prisma.apiKey.update({
       where: { id },
-      data: { status: 'REVOKED' },
+      data: { status: ApiKeyStatus.REVOKED },
       select: {
         id: true,
         name: true,
@@ -251,7 +251,7 @@ export class ApiKeysService {
         this.prisma.apiKey
           .update({
             where: { id: apiKey.id },
-            data: { status: 'EXPIRED' },
+            data: { status: ApiKeyStatus.EXPIRED },
           })
           .catch((err: Error) => {
             this.logger.warn(`Failed to mark key as expired: ${err.message}`);

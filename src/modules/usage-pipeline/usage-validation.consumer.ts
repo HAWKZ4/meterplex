@@ -30,7 +30,7 @@ import {
   KafkaProducerService,
 } from '@infra/messaging';
 
-import { SubscriptionStatus } from '@prisma/client';
+import { SubscriptionStatus, TenantStatus } from '@prisma/client';
 
 /** Shape of a raw usage event from the outbox. */
 interface RawUsageEvent {
@@ -130,7 +130,7 @@ export class UsageValidationConsumer extends KafkaConsumerBase {
       return;
     }
 
-    if (tenant.status !== 'ACTIVE') {
+    if (tenant.status !== TenantStatus.ACTIVE) {
       await this.sendToDeadLetter(
         event,
         `Tenant ${event.tenantId} is ${tenant.status}, not ACTIVE`,

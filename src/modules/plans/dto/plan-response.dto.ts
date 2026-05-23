@@ -43,7 +43,7 @@ export class PlanResponseDto {
   @ApiPropertyOptional({ example: 'For growing teams that need more power.' })
   description!: string | null;
 
-  @ApiProperty({ enum: PlanStatus, example: 'ACTIVE' })
+  @ApiProperty({ enum: PlanStatus, example: PlanStatus.ACTIVE })
   status!: PlanStatus;
 
   @ApiProperty({ example: true })

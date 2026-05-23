@@ -39,6 +39,8 @@ import {
   PaymentAttemptResponseDto,
 } from '@modules/payments/dto';
 
+import { LedgerEntryType, PaymentAttemptStatus } from '@prisma/client';
+
 import { BalanceResponseDto, LedgerListResponseDto } from './dto';
 
 @ApiTags('Billing')
@@ -65,7 +67,13 @@ export class BillingLedgerController {
   @ApiQuery({
     name: 'type',
     required: false,
-    enum: ['CHARGE', 'PAYMENT', 'CREDIT', 'REFUND', 'ADJUSTMENT'],
+    enum: [
+      LedgerEntryType.ADJUSTMENT,
+      LedgerEntryType.CHARGE,
+      LedgerEntryType.CREDIT,
+      LedgerEntryType.PAYMENT,
+      LedgerEntryType.REFUND,
+    ],
   })
   @ApiResponse({
     status: 200,
@@ -162,7 +170,13 @@ export class BillingLedgerController {
   @ApiQuery({
     name: 'status',
     required: false,
-    enum: ['PENDING', 'SUCCEEDED', 'FAILED', 'CANCELLED', 'REQUIRES_ACTION'],
+    enum: [
+      PaymentAttemptStatus.PENDING,
+      PaymentAttemptStatus.SUCCEEDED,
+      PaymentAttemptStatus.FAILED,
+      PaymentAttemptStatus.CANCELLED,
+      PaymentAttemptStatus.REQUIRES_ACTION,
+    ],
   })
   @ApiResponse({
     status: 200,

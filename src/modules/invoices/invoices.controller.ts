@@ -49,7 +49,11 @@ import {
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { PaymentIntentService } from '@modules/payments/payment-intent.service';
 
-import { MembershipRole } from '@prisma/client';
+import {
+  InvoiceStatus,
+  MembershipRole,
+  SubscriptionStatus,
+} from '@prisma/client';
 
 import {
   InvoiceLineItemListResponseDto,
@@ -90,7 +94,12 @@ export class InvoicesController {
   @ApiQuery({
     name: 'status',
     required: false,
-    enum: ['DRAFT', 'FINALIZED', 'PAID', 'VOID'],
+    enum: [
+      InvoiceStatus.DRAFT,
+      InvoiceStatus.FINALIZED,
+      InvoiceStatus.PAID,
+      InvoiceStatus.VOID,
+    ],
   })
   @ApiResponse({
     status: 200,
@@ -243,7 +252,13 @@ export class InvoicesController {
     const subscription = await this.prisma.subscription.findFirst({
       where: {
         tenantId,
-        status: { in: ['ACTIVE', 'TRIALING', 'CANCELLED'] },
+        status: {
+          in: [
+            SubscriptionStatus.ACTIVE,
+            SubscriptionStatus.TRIALING,
+            SubscriptionStatus.CANCELLED,
+          ],
+        },
       },
       select: {
         id: true,
