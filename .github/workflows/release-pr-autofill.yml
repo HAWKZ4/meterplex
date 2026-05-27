@@ -1,14 +1,14 @@
 # =============================================================
-# Automated PR Description (Autofill)
+# Automated Release PR Description (Autofill)
 #
-# Automatically populates the Pull Request description with a
-# summarized changelog of all commits in the branch.
+# Automatically updates the Pull Request description for release
+# branches with a summarized changelog of all commits in the branch.
 #
-# This ensures that every PR has a professional, categorized
-# description without any manual effort from the developer.
+# This ensures that Release PRs always stay updated with the latest
+# changes during the release lifecycle.
 # =============================================================
 
-name: PR Description Autofill ✍️
+name: Release PR Autofill ✍️
 
 on:
   pull_request:
@@ -31,9 +31,7 @@ jobs:
     timeout-minutes: 5
     if: |
       (github.event_name != 'workflow_dispatch' || github.actor == github.repository_owner) &&
-      github.event.pull_request.user.login != 'renovate[bot]' &&
-      !contains(github.event.pull_request.labels.*.name, 'release') &&
-      (github.event_name == 'workflow_dispatch' || github.event.pull_request.commits > 1)
+      (github.event_name == 'workflow_dispatch' || startsWith(github.event.pull_request.head.ref, 'chore/release-'))
     steps:
       - name: Harden Runner 🛡️
         uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
@@ -83,17 +81,20 @@ jobs:
             fi
           fi
 
-          # 4. Perform a surgical replacement of the content between tags
-          # We use a temp file to handle multiline safely
-          echo "$CURRENT_BODY" > final_body.md
+          # Write current body to a temp file safely
+          printf "%s" "$CURRENT_BODY" > final_body.md
 
-          # Delete everything between tags
+          # Write new commits changelog to a temp file safely (avoids shell injection/expansion)
+          printf "%s" "$COMMITS" > commits.tmp
+
+          # Delete everything between tags in final_body.md
           sed -i '/<!-- autofill-start -->/,/<!-- autofill-end -->/{//!d}' final_body.md
 
-          # Insert the new commits after the start tag
-          sed -i "/<!-- autofill-start -->/r /dev/stdin" final_body.md <<EOF
-          $COMMITS
-          EOF
+          # Insert the new commits from commits.tmp after the start tag
+          sed -i "/<!-- autofill-start -->/r commits.tmp" final_body.md
+
+          # Cleanup temp files
+          rm -f commits.tmp
 
       - name: Update PR 🚀
         env:

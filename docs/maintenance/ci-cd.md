@@ -93,17 +93,17 @@ To maintain velocity while following strict branch protection rules:
 
 ## 📋 Workflow Catalog
 
-| Workflow           | File                   | Purpose                                                  | Trigger                   |
-| :----------------- | :--------------------- | :------------------------------------------------------- | :------------------------ |
-| **CI & Security**  | `ci.yml`               | Validates code quality, runs tests, and audits security. | PR / Push to main         |
-| **Action Linting** | `workflow-lint.yml`    | Audits GitHub Actions for security flaws using `zizmor`. | Changes to workflows      |
-| **PR Autofill**    | `pr-autofill.yml`      | Populates PR descriptions based on commit history.       | PR to main                |
-| **Auto-Approve**   | `auto-approve.yml`     | Approves safe automated updates & unblocks reviews.      | CI finish on bot branches |
-| **Release 1**      | `release-prepare.yml`  | Bumps version and opens a Release PR.                    | Manual (Owner Only)       |
-| **Release 2**      | `release-finalize.yml` | Pushes tag and creates GitHub Release on PR merge.       | PR Merge (Owner Only)     |
-| **Scorecard**      | `scorecard.yml`        | Tracks repo-level security health (OpenSSF).             | Weekly / Push to main     |
-| **Docs Deploy**    | `docs.yml`             | Builds and publishes documentation.                      | Push to main / Manual     |
-| **Maintenance**    | `maintenance.yml`      | Weekly automated cleanup of dependency overrides.        | Weekly / Manual           |
+| Workflow                | File                   | Purpose                                                  | Trigger                   |
+| :---------------------- | :--------------------- | :------------------------------------------------------- | :------------------------ |
+| **CI & Security**       | `ci.yml`               | Validates code quality, runs tests, and audits security. | PR / Push to main         |
+| **Action Linting**      | `workflow-lint.yml`    | Audits GitHub Actions for security flaws using `zizmor`. | Changes to workflows      |
+| **Release PR Autofill** | `pr-autofill.yml`      | Updates release PR descriptions based on commit history. | Release PR to main        |
+| **Auto-Approve**        | `auto-approve.yml`     | Approves safe automated updates & unblocks reviews.      | CI finish on bot branches |
+| **Release 1**           | `release-prepare.yml`  | Bumps version and opens a Release PR.                    | Manual (Owner Only)       |
+| **Release 2**           | `release-finalize.yml` | Pushes tag and creates GitHub Release on PR merge.       | PR Merge (Owner Only)     |
+| **Scorecard**           | `scorecard.yml`        | Tracks repo-level security health (OpenSSF).             | Weekly / Push to main     |
+| **Docs Deploy**         | `docs.yml`             | Builds and publishes documentation.                      | Push to main / Manual     |
+| **Maintenance**         | `maintenance.yml`      | Weekly automated cleanup of dependency overrides.        | Weekly / Manual           |
 
 ---
 

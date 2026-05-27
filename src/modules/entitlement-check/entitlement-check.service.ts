@@ -34,6 +34,7 @@ import {
 } from '@nestjs/common';
 
 import { PrismaService } from '@app-prisma/prisma.service';
+import { randomUUID } from 'node:crypto';
 
 import { ERRORS } from '@common/constants';
 
@@ -290,6 +291,49 @@ export class EntitlementCheckService {
     const limit = snapshot.limit ?? snapshot.includedAmount ?? 0;
     const isOverage = newUsage > limit;
     const remaining = Math.max(0, limit - newUsage);
+
+    // Persist usage event through the pipeline for billing durability.
+    // Redis increment is the fast path for immediate feedback;
+    // this ensures the event reaches usage_aggregates for invoicing.
+    const eventId = `consume-${tenantId}-${featureLookupKey}-${randomUUID()}`;
+
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const usageEvent = await tx.usageEvent.create({
+          data: {
+            eventId,
+            tenantId,
+            subscriptionId: snapshot.subscriptionId,
+            featureLookupKey,
+            amount,
+            timestamp: new Date(),
+            status: 'PENDING',
+            metadata: { source: 'consume-endpoint' },
+          },
+        });
+
+        await tx.outboxEvent.create({
+          data: {
+            topic: 'usage.raw',
+            aggregateType: 'usage_event',
+            aggregateId: usageEvent.id,
+            payload: {
+              eventId,
+              tenantId,
+              subscriptionId: snapshot.subscriptionId,
+              featureLookupKey,
+              amount,
+            },
+          },
+        });
+      });
+    } catch (error) {
+      // Log but don't fail the consume response - Redis already incremented.
+      // The pipeline will reconcile on the next aggregation cycle.
+      this.logger.warn(
+        `Failed to persist usage event for consume: ${error instanceof Error ? error.message : String(error)}`,
+      );
+    }
 
     this.logger.log(
       `Consumed ${amount} units of ${featureLookupKey} for tenant ${tenantId} (New usage: ${newUsage}, Overage: ${isOverage})`,

@@ -133,14 +133,14 @@ jobs:
           title: 'chore(release): 🚀 ${{ steps.vars.outputs.tag_name }}'
           branch: 'chore/release-${{ steps.vars.outputs.tag_name }}'
           body: |
-            <!-- autofill-start -->
             ## 📦 Release ${{ steps.vars.outputs.tag_name }}
 
+            <!-- autofill-start -->
             ${{ steps.git-cliff-pr.outputs.content }}
+            <!-- autofill-end -->
 
             ---
             - **Bump Strategy**: ${{ github.event.inputs.tag_name != '' && 'Manual Override' || format('git-hygiene recommendation ({0})', steps.bump.outputs.releaseType) }}
-            <!-- autofill-end -->
           labels: |
             chore
             release

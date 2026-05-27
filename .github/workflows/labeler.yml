@@ -40,6 +40,32 @@ jobs:
           client-id: ${{ secrets.CHITRANK_BOT_CLIENT_ID }}
           private-key: ${{ secrets.CHITRANK_BOT_PRIVATE_KEY }}
 
+      - name: Sync Label Colors and Descriptions 🎨
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          # Define labels as "name:color:description"
+          labels=(
+            "area/docs:8FD6E8:Documentation files and markdown files"
+            "area/ci:F9D0C4:CI/CD workflows and actions configuration"
+            "area/logic:C2F2D0:Application source code changes"
+            "area/database:D4C5F9:Database schemas, migrations, and seeds"
+            "area/api:F9E8B3:API collections and contract definitions"
+            "area/deps:D2D2D2:Dependency upgrades and lockfile updates"
+            "area/security:FFB3B3:Security policies and scanner configurations"
+            "area/maintenance:D0E1FD:Weekly cleanup and automated maintenance tasks"
+          )
+
+          for item in "${labels[@]}"; do
+            # Parse the item
+            IFS=":" read -r name color description <<< "$item"
+            
+            echo "Syncing label '$name' (Color: #$color)..."
+            # Try to create the label; if it fails (already exists), update it
+            gh label create "$name" --color "$color" --description "$description" 2>/dev/null || \
+            gh label edit "$name" --color "$color" --description "$description"
+          done
+
       - uses: actions/labeler@f27b608878404679385c85cfa523b85ccb86e213 # v6.1.0
         with:
           repo-token: '${{ steps.generate_token.outputs.token }}'
