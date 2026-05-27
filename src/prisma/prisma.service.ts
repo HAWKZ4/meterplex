@@ -12,6 +12,7 @@
  *   const tenant = await this.prisma.tenant.findUnique({ where: { id } });
  */
 import {
+  INestApplication,
   Injectable,
   Logger,
   OnModuleDestroy,
@@ -58,5 +59,20 @@ export class PrismaService
     this.logger.log('Disconnecting from PostgreSQL...');
     await this.$disconnect();
     this.logger.log('PostgreSQL disconnected');
+  }
+
+  /**
+   * Register shutdown hooks (SIGTERM, SIGINT) to ensure
+   * Prisma cleanly closes its database connections on exit.
+   *
+   * @param app Nest application instance
+   */
+  enableShutdownHooks(app: INestApplication): void {
+    this.logger.log('Registering shutdown hooks...');
+    process.once('beforeExit', () => {
+      this.logger.log('Closing application...');
+      void app.close();
+    });
+    this.logger.log('Shutdown hooks registered');
   }
 }

@@ -19,6 +19,7 @@ import { ValidationPipe, VersioningType } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
+import { PrismaService } from '@app-prisma/prisma.service';
 import compression from 'compression';
 import helmet from 'helmet';
 import { WinstonModule } from 'nest-winston';
@@ -243,6 +244,7 @@ async function bootstrap(): Promise<void> {
   //    mid-operation, potentially corrupting data.
   // =============================================================
   app.enableShutdownHooks();
+  app.get(PrismaService).enableShutdownHooks(app);
 
   // =============================================================
   // Start listening
