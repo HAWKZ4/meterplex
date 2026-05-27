@@ -1,0 +1,117 @@
+# =============================================================
+# Knip Scheduler - Unused Code Audit 🧹
+#
+# Runs weekly to scan for unused files, exports, and dependencies
+# using knip. If any issues are found, it raises a PR updating the
+# knip report, assigned to the repo owner.
+# =============================================================
+
+name: Knip Scheduler 🧹
+
+on:
+  schedule:
+    # Runs every Sunday at 00:00 UTC
+    - cron: '0 0 * * 0'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+env:
+  NODE_VERSION: 24
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  audit:
+    name: Audit & Report Unused Code
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - name: Harden Runner 🛡️
+        uses: step-security/harden-runner@a5ad31d6a139d249332a2605b85202e8c0b78450 # v2.19.1
+        with:
+          egress-policy: audit
+
+      - name: Checkout repository 📥
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
+        with:
+          persist-credentials: false
+
+      - name: Create Bot Token 🤖🔑
+        id: generate_token
+        uses: ./.github/actions/setup-bot
+        with:
+          client-id: ${{ secrets.CHITRANK_BOT_CLIENT_ID }}
+          private-key: ${{ secrets.CHITRANK_BOT_PRIVATE_KEY }}
+
+      - name: Configure Authenticated Git 🔧
+        env:
+          TOKEN: ${{ steps.generate_token.outputs.token }}
+          REPO: ${{ github.repository }}
+        run: |
+          git remote set-url origin "https://x-access-token:${TOKEN}@github.com/${REPO}"
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Install pnpm 📦
+        uses: pnpm/action-setup@739bfe42ca9233c5e6aca07c1a25a9d34aca49b0 # v6.0.7
+
+      - name: Setup Node.js 🟢
+        uses: actions/setup-node@48b55a011bda9f5d6aeb4c2d9c7362e8dae4041e # v6.4.0
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'pnpm'
+
+      - name: Install dependencies 🛠️
+        timeout-minutes: 5
+        run: pnpm install --frozen-lockfile --prefer-offline --ignore-scripts
+
+      - name: Validate & Generate Prisma client 💎
+        run: |
+          npx prisma validate
+          pnpm db:generate
+
+      - name: Run Knip 🧹
+        run: |
+          pnpm lint:knip --reporter markdown > knip-report.md || true
+
+      - name: Raise PR if Unused Code Found 📝
+        env:
+          GH_TOKEN: ${{ steps.generate_token.outputs.token }}
+        run: |
+          if [ -s knip-report.md ] && ! grep -q "^# Knip report\s*$" knip-report.md; then
+            # Check if there are actual findings (headings other than the title)
+            if grep -q "^## " knip-report.md; then
+              BRANCH_NAME="maintenance/knip-unused-code-report"
+
+              # Check if remote branch exists and delete it to start fresh
+              if git ls-remote --heads origin "$BRANCH_NAME" | grep -q "$BRANCH_NAME"; then
+                git push origin --delete "$BRANCH_NAME" || true
+              fi
+
+              git checkout -b "$BRANCH_NAME"
+              git add knip-report.md
+              git commit -m "chore(maintenance): update knip unused code report"
+              git push origin "$BRANCH_NAME" --force
+
+              # Check if PR already exists
+              PR_EXISTS=$(gh pr list --head "$BRANCH_NAME" --state open --json number -q '.[0].number')
+
+              if [ -n "$PR_EXISTS" ]; then
+                echo "PR already exists: #$PR_EXISTS. Updating description..."
+                gh pr edit "$PR_EXISTS" --title "chore(maintenance): automated knip unused code report" --body-file knip-report.md
+              else
+                echo "Creating new PR..."
+                gh pr create \
+                  --title "chore(maintenance): automated knip unused code report" \
+                  --body-file knip-report.md \
+                  --base main \
+                  --head "$BRANCH_NAME" \
+                  --assignee "${{ github.repository_owner }}"
+              fi
+            else
+              echo "Knip report has no findings."
+            fi
+          else
+            echo "Knip report is empty."
+          fi

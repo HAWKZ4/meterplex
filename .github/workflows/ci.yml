@@ -94,7 +94,6 @@ jobs:
               - 'eslint.config.mjs'
               - '.eslintignore'
               - 'tsconfig.json'
-              - 'knip.json'
             workflows:
               - '.github/workflows/**'
               - '.github/actions/**'
@@ -181,8 +180,7 @@ jobs:
           chmod +x osv-scanner
           (./osv-scanner --lockfile=pnpm-lock.yaml > .ci-status/osv.log 2>&1 || echo "1" > .ci-status/osv.fail) &
 
-          # # 7. Knip Dependency & Export Analyzer
-          # (pnpm lint:knip > .ci-status/knip.log 2>&1 || echo "1" > .ci-status/knip.fail) &
+
 
           echo "All checks started. Waiting for completion..."
           wait

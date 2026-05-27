@@ -265,48 +265,124 @@ export class AuditLogInterceptor implements NestInterceptor {
    * Builds the changes JSONB payload based on the action type.
    *
    * CREATE: { "after": { ...response body } }
-   * UPDATE: { "before": "unavailable", "after": { ...request body } }
+   * UPDATE: { "requestedChanges": { ...request body }, "after": { ...response body } }
    * DELETE: { "before": { ...response body } }
    *
-   * Note: For UPDATE, we don't have the "before" state because the
-   * interceptor runs AFTER the handler. To capture "before" state,
-   * we'd need to query the database before the update - that's a
-   * performance cost we avoid for now. If needed, individual services
-   * can pass before/after diffs explicitly.
+   * All payloads are recursively sanitized and size-limited.
    */
   private buildChanges(
     action: AuditAction,
     requestBody: Record<string, unknown> | undefined,
     responseBody: unknown,
   ): Prisma.InputJsonObject {
-    // Strip sensitive fields from any payload before storing
-    const sanitize = (obj: unknown): Prisma.InputJsonObject => {
-      if (!obj || typeof obj !== 'object') return obj as any;
-      const sanitized = { ...(obj as Record<string, unknown>) };
-      // Never store passwords, tokens, or key material in audit logs
-      delete sanitized['password'];
-      delete sanitized['passwordHash'];
-      delete sanitized['currentPassword'];
-      delete sanitized['newPassword'];
-      delete sanitized['key'];
-      delete sanitized['keyHash'];
-      delete sanitized['tokenHash'];
-      delete sanitized['refreshToken'];
-      delete sanitized['accessToken'];
-      return sanitized as Prisma.InputJsonObject;
-    };
+    let changes: Prisma.InputJsonObject;
 
     switch (action) {
       case AuditAction.CREATE:
-        return { after: sanitize(responseBody) };
+        changes = { after: this.sanitize(responseBody) };
+        break;
       case AuditAction.UPDATE:
-        return {
-          requestedChanges: sanitize(requestBody),
-          after: sanitize(responseBody),
+        changes = {
+          requestedChanges: this.sanitize(requestBody),
+          after: this.sanitize(responseBody),
         };
+        break;
       case AuditAction.DELETE:
-        return { before: sanitize(responseBody) };
+        changes = { before: this.sanitize(responseBody) };
+        break;
     }
+
+    return this.enforceMaxSize(changes);
+  }
+
+  /** Max serialized size for the changes payload (10KB). */
+  private static readonly MAX_CHANGES_BYTES = 10 * 1024;
+
+  /**
+   * Sensitive keys stripped at ALL nesting levels.
+   * Lowercase comparison - keys are lowercased before checking.
+   */
+  private static readonly SENSITIVE_KEYS = new Set([
+    'password',
+    'passwordhash',
+    'currentpassword',
+    'newpassword',
+    'token',
+    'tokenhash',
+    'key',
+    'keyhash',
+    'secret',
+    'authorization',
+    'cookie',
+    'refreshtoken',
+    'accesstoken',
+  ]);
+
+  /**
+   * Recursively sanitize an object, stripping sensitive keys at every level.
+   * Handles circular references via a seen-set.
+   */
+  private sanitize(
+    obj: unknown,
+    seen = new WeakSet<object>(),
+  ): Prisma.InputJsonValue | null {
+    if (obj === null || obj === undefined) return null;
+
+    // Handle primitives and edge cases
+    if (typeof obj === 'bigint') return obj.toString();
+    if (typeof obj === 'symbol') return obj.toString();
+    if (typeof obj === 'function')
+      return `[Function: ${obj.name || 'anonymous'}]`;
+    if (typeof obj !== 'object') return obj as Prisma.InputJsonValue;
+
+    // Circular reference detection
+    if (seen.has(obj as object)) return '[Circular]' as any;
+    seen.add(obj as object);
+
+    // Handle objects with toJSON method (like Date, Prisma.Decimal, etc.)
+    if (typeof (obj as any).toJSON === 'function') {
+      return this.sanitize((obj as any).toJSON(), seen);
+    }
+
+    if (Array.isArray(obj)) {
+      return obj.map((item) =>
+        this.sanitize(item, seen),
+      ) as Prisma.InputJsonValue;
+    }
+
+    const result: Record<string, Prisma.InputJsonValue | null> = {};
+    for (const [key, value] of Object.entries(obj as Record<string, unknown>)) {
+      if (AuditLogInterceptor.SENSITIVE_KEYS.has(key.toLowerCase())) {
+        result[key] = '[REDACTED]';
+      } else {
+        result[key] = this.sanitize(value, seen);
+      }
+    }
+
+    return result as Prisma.InputJsonObject;
+  }
+
+  /**
+   * Truncate the changes payload if it exceeds MAX_CHANGES_BYTES.
+   * Adds _truncated flag so consumers know data was lost.
+   */
+  private enforceMaxSize(
+    changes: Prisma.InputJsonObject,
+  ): Prisma.InputJsonObject {
+    const serialized = JSON.stringify(changes);
+    if (serialized.length <= AuditLogInterceptor.MAX_CHANGES_BYTES) {
+      return changes;
+    }
+
+    this.logger.warn(
+      `Audit log payload truncated: ${serialized.length} bytes > ${AuditLogInterceptor.MAX_CHANGES_BYTES} limit`,
+    );
+
+    return {
+      _truncated: true,
+      _originalSize: serialized.length,
+      _message: `Payload exceeded ${AuditLogInterceptor.MAX_CHANGES_BYTES} byte limit`,
+    };
   }
 
   /**

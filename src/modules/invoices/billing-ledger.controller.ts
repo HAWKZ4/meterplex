@@ -30,8 +30,10 @@ import { PrismaService } from '@app-prisma/prisma.service';
 
 import { ERRORS } from '@common/constants';
 import { TenantId } from '@common/decorators';
+import { Roles } from '@common/decorators';
 import { ErrorResponseDto } from '@common/dto';
 import { TenantGuard } from '@common/guards';
+import { RolesGuard } from '@common/guards';
 
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import {
@@ -39,7 +41,7 @@ import {
   PaymentAttemptResponseDto,
 } from '@modules/payments/dto';
 
-import { LedgerEntryType, PaymentAttemptStatus } from '@prisma/client';
+import { LedgerEntryType, PaymentAttemptStatus,MembershipRole } from '@prisma/client';
 
 import { BalanceResponseDto, LedgerListResponseDto } from './dto';
 
@@ -58,7 +60,8 @@ export class BillingLedgerController {
    * Optionally filter by type (CHARGE, PAYMENT, CREDIT, REFUND, ADJUSTMENT).
    */
   @Get('ledger')
-  @UseGuards(JwtAuthGuard, TenantGuard)
+  @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
+  @Roles(MembershipRole.OWNER, MembershipRole.ADMIN, MembershipRole.BILLING)
   @ApiBearerAuth()
   @ApiHeader({ name: 'x-tenant-id', required: true })
   @ApiOperation({ summary: 'List billing ledger entries' })
@@ -68,6 +71,11 @@ export class BillingLedgerController {
     name: 'type',
     required: false,
     enum: LedgerEntryType,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient role',
+    type: ErrorResponseDto,
   })
   @ApiResponse({
     status: 200,
@@ -118,7 +126,8 @@ export class BillingLedgerController {
    * Positive = tenant owes money. Negative = tenant has credit.
    */
   @Get('balance')
-  @UseGuards(JwtAuthGuard, TenantGuard)
+  @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
+  @Roles(MembershipRole.OWNER, MembershipRole.ADMIN, MembershipRole.BILLING)
   @ApiBearerAuth()
   @ApiHeader({ name: 'x-tenant-id', required: true })
   @ApiOperation({ summary: 'Get tenant billing balance' })
@@ -126,6 +135,11 @@ export class BillingLedgerController {
     status: 200,
     description: 'Current balance',
     type: BalanceResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient role',
+    type: ErrorResponseDto,
   })
   async getBalance(@TenantId() tenantId: string) {
     const result = await this.prisma.billingLedgerEntry.aggregate({
@@ -155,7 +169,8 @@ export class BillingLedgerController {
    * Optionally filter by status (PENDING, SUCCEEDED, FAILED, CANCELLED, REQUIRES_ACTION).
    */
   @Get('payments')
-  @UseGuards(JwtAuthGuard, TenantGuard)
+  @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
+  @Roles(MembershipRole.OWNER, MembershipRole.ADMIN, MembershipRole.BILLING)
   @ApiBearerAuth()
   @ApiHeader({ name: 'x-tenant-id', required: true })
   @ApiOperation({ summary: 'List payment attempts for tenant' })
@@ -170,6 +185,11 @@ export class BillingLedgerController {
     status: 200,
     description: 'Paginated payment attempts',
     type: PaymentAttemptListResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient role',
+    type: ErrorResponseDto,
   })
   @ApiResponse({ status: 401, type: ErrorResponseDto })
   async getPayments(
@@ -237,7 +257,8 @@ export class BillingLedgerController {
    * Get a single payment attempt with provider response details.
    */
   @Get('payments/:id')
-  @UseGuards(JwtAuthGuard, TenantGuard)
+  @UseGuards(JwtAuthGuard, TenantGuard, RolesGuard)
+  @Roles(MembershipRole.OWNER, MembershipRole.ADMIN, MembershipRole.BILLING)
   @ApiBearerAuth()
   @ApiHeader({ name: 'x-tenant-id', required: true })
   @ApiOperation({ summary: 'Get payment attempt details' })
@@ -246,6 +267,11 @@ export class BillingLedgerController {
     status: 200,
     description: 'Payment attempt details',
     type: PaymentAttemptResponseDto,
+  })
+  @ApiResponse({
+    status: 403,
+    description: 'Insufficient role',
+    type: ErrorResponseDto,
   })
   @ApiResponse({ status: 404, type: ErrorResponseDto })
   async getPaymentById(
