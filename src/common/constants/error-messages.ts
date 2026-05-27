@@ -169,6 +169,8 @@ export const ERRORS = {
     INVALID_TRANSITION: (from: string, to: string) =>
       `Cannot transition invoice from ${from} to ${to}`,
     ALREADY_EXISTS: 'Invoice already exists for this billing period',
+    NO_SUBSCRIPTION:
+      'No active or cancelled subscription found for this tenant',
   },
   /**
    * Payment related error messages

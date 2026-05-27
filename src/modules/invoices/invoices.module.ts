@@ -19,6 +19,7 @@ import { InvoiceGenerationService } from './invoice-generation.service';
 import { InvoiceLifecycleService } from './invoice-lifecycle.service';
 import { InvoiceNumberService } from './invoice-number.service';
 import { InvoicesController } from './invoices.controller';
+import { InvoicesService } from './invoices.service';
 
 @Module({
   controllers: [InvoicesController, BillingLedgerController],
@@ -28,11 +29,13 @@ import { InvoicesController } from './invoices.controller';
     InvoiceNumberService,
     BillingPeriodService,
     BillingCronService,
+    InvoicesService,
   ],
   exports: [
     InvoiceGenerationService,
     InvoiceLifecycleService,
     BillingPeriodService,
+    InvoicesService,
   ],
 })
 export class InvoicesModule {}

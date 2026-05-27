@@ -17,7 +17,6 @@ import {
   HttpCode,
   HttpStatus,
   Logger,
-  NotFoundException,
   Param,
   ParseUUIDPipe,
   Post,
@@ -34,9 +33,6 @@ import {
   ApiTags,
 } from '@nestjs/swagger';
 
-import { PrismaService } from '@app-prisma/prisma.service';
-
-import { ERRORS } from '@common/constants';
 import { Roles, TenantId } from '@common/decorators';
 import { ErrorResponseDto } from '@common/dto';
 import {
@@ -56,8 +52,8 @@ import {
   InvoiceListResponseDto,
   InvoiceResponseDto,
 } from './dto';
-import { InvoiceGenerationService } from './invoice-generation.service';
 import { InvoiceLifecycleService } from './invoice-lifecycle.service';
+import { InvoicesService } from './invoices.service';
 
 @ApiTags('Invoices')
 @Controller({
@@ -68,8 +64,7 @@ export class InvoicesController {
   private readonly logger = new Logger(InvoicesController.name);
 
   constructor(
-    private readonly prisma: PrismaService,
-    private readonly invoiceGeneration: InvoiceGenerationService,
+    private readonly invoicesService: InvoicesService,
     private readonly invoiceLifecycle: InvoiceLifecycleService,
     private readonly paymentIntentService: PaymentIntentService,
   ) {}
@@ -104,37 +99,12 @@ export class InvoicesController {
     @Query('limit') limit?: number,
     @Query('status') status?: string,
   ) {
-    const pageNum = Math.max(1, page ?? 1);
-    const pageSize = Math.min(100, Math.max(1, limit ?? 20));
-    const skip = (pageNum - 1) * pageSize;
-
-    const where = {
+    return this.invoicesService.findAll(
       tenantId,
-      ...(status && { status: status as any }),
-    };
-
-    const [invoices, total] = await Promise.all([
-      this.prisma.invoice.findMany({
-        where,
-        include: {
-          lineItems: { orderBy: { sortOrder: 'asc' } },
-        },
-        orderBy: { createdAt: 'desc' },
-        skip,
-        take: pageSize,
-      }),
-      this.prisma.invoice.count({ where }),
-    ]);
-
-    return {
-      data: invoices,
-      meta: {
-        total,
-        page: pageNum,
-        limit: pageSize,
-        totalPages: Math.ceil(total / pageSize),
-      },
-    };
+      page ?? 1,
+      limit ?? 20,
+      status,
+    );
   }
 
   /**
@@ -160,22 +130,7 @@ export class InvoicesController {
     @Param('id', ParseUUIDPipe) id: string,
     @TenantId() tenantId: string,
   ) {
-    // Verify invoice belongs to tenant
-    const invoice = await this.prisma.invoice.findFirst({
-      where: { id, tenantId },
-      select: { id: true },
-    });
-
-    if (!invoice) {
-      throw new NotFoundException(ERRORS.INVOICE.NOT_FOUND);
-    }
-
-    const lineItems = await this.prisma.invoiceLineItem.findMany({
-      where: { invoiceId: id },
-      orderBy: { sortOrder: 'asc' },
-    });
-
-    return { data: lineItems };
+    return this.invoicesService.findLineItems(tenantId, id);
   }
 
   /**
@@ -199,18 +154,7 @@ export class InvoicesController {
     @Param('id', ParseUUIDPipe) id: string,
     @TenantId() tenantId: string,
   ) {
-    const invoice = await this.prisma.invoice.findFirst({
-      where: { id, tenantId },
-      include: {
-        lineItems: { orderBy: { sortOrder: 'asc' } },
-      },
-    });
-
-    if (!invoice) {
-      throw new NotFoundException(ERRORS.INVOICE.NOT_FOUND);
-    }
-
-    return invoice;
+    return this.invoicesService.findById(tenantId, id);
   }
 
   /**
@@ -239,47 +183,7 @@ export class InvoicesController {
   })
   @ApiResponse({ status: 404, type: ErrorResponseDto })
   async generate(@TenantId() tenantId: string) {
-    // Find the most recent subscription (active or cancelled)
-    const subscription = await this.prisma.subscription.findFirst({
-      where: {
-        tenantId,
-        status: { in: ['ACTIVE', 'TRIALING', 'CANCELLED'] },
-      },
-      select: {
-        id: true,
-        tenantId: true,
-        planId: true,
-        priceId: true,
-        status: true,
-        currentPeriodStart: true,
-        currentPeriodEnd: true,
-        billingAnchor: true,
-        cancelledAt: true,
-        plan: { select: { id: true, name: true, slug: true } },
-        price: {
-          select: { id: true, interval: true, amount: true, currency: true },
-        },
-      },
-      orderBy: { createdAt: 'desc' },
-    });
-
-    if (!subscription) {
-      return { statusCode: 404, message: 'No subscription found' };
-    }
-
-    // Cancelled mid-cycle → prorated invoice
-    if (
-      subscription.cancelledAt &&
-      subscription.cancelledAt < subscription.currentPeriodEnd
-    ) {
-      return this.invoiceGeneration.generateProrated(
-        subscription,
-        subscription.cancelledAt,
-      );
-    }
-
-    // Active/trialing → full-period invoice
-    return this.invoiceGeneration.generate(subscription);
+    return this.invoicesService.generateForTenant(tenantId);
   }
 
   /**
