@@ -41,7 +41,11 @@ import {
   PaymentAttemptResponseDto,
 } from '@modules/payments/dto';
 
-import { LedgerEntryType, PaymentAttemptStatus,MembershipRole } from '@prisma/client';
+import {
+  LedgerEntryType,
+  MembershipRole,
+  PaymentAttemptStatus,
+} from '@prisma/client';
 
 import { BalanceResponseDto, LedgerListResponseDto } from './dto';
 
