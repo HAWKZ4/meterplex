@@ -59,7 +59,7 @@ export class UpdatePlanDto {
    */
   @ApiPropertyOptional({
     enum: PlanStatus,
-    example: 'ARCHIVED',
+    example: PlanStatus.ARCHIVED,
     description: 'ARCHIVED = no new subscriptions, existing ones continue',
   })
   @IsOptional()

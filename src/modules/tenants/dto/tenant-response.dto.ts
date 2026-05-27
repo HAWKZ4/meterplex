@@ -31,7 +31,7 @@ export class TenantResponseDto {
 
   @ApiProperty({
     enum: TenantStatus,
-    example: 'ACTIVE',
+    example: TenantStatus.ACTIVE,
   })
   status!: TenantStatus;
 

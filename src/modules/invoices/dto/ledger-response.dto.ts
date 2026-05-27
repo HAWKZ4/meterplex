@@ -3,6 +3,8 @@
  */
 import { ApiProperty } from '@nestjs/swagger';
 
+import { LedgerEntryType } from '@prisma/client';
+
 export class LedgerEntryResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-...' })
   id!: string;
@@ -14,8 +16,8 @@ export class LedgerEntryResponseDto {
   invoiceId!: string | null;
 
   @ApiProperty({
-    enum: ['CHARGE', 'PAYMENT', 'CREDIT', 'REFUND', 'ADJUSTMENT'],
-    example: 'CHARGE',
+    enum: LedgerEntryType,
+    example: LedgerEntryType.CHARGE,
   })
   type!: string;
 

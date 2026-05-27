@@ -49,7 +49,7 @@ import {
 import { JwtAuthGuard } from '@modules/auth/guards/jwt-auth.guard';
 import { PaymentIntentService } from '@modules/payments/payment-intent.service';
 
-import { MembershipRole } from '@prisma/client';
+import { InvoiceStatus, MembershipRole } from '@prisma/client';
 
 import {
   InvoiceLineItemListResponseDto,
@@ -90,7 +90,7 @@ export class InvoicesController {
   @ApiQuery({
     name: 'status',
     required: false,
-    enum: ['DRAFT', 'FINALIZED', 'PAID', 'VOID'],
+    enum: InvoiceStatus,
   })
   @ApiResponse({
     status: 200,

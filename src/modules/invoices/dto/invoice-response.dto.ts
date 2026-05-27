@@ -6,6 +6,8 @@
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { InvoiceStatus } from '@prisma/client';
+
 export class InvoiceLineItemResponseDto {
   @ApiProperty({ example: 'e0481932-...' })
   id!: string;
@@ -53,8 +55,8 @@ export class InvoiceResponseDto {
   invoiceNumber!: string | null;
 
   @ApiProperty({
-    enum: ['DRAFT', 'FINALIZED', 'PAID', 'VOID'],
-    example: 'FINALIZED',
+    enum: InvoiceStatus,
+    example: InvoiceStatus.FINALIZED,
   })
   status!: string;
 

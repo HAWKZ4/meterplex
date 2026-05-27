@@ -3,6 +3,8 @@
  */
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 
+import { PaymentAttemptStatus } from '@prisma/client';
+
 export class PaymentAttemptResponseDto {
   @ApiProperty({ example: 'a1b2c3d4-...' })
   id!: string;
@@ -27,8 +29,8 @@ export class PaymentAttemptResponseDto {
   provider!: string;
 
   @ApiProperty({
-    enum: ['PENDING', 'SUCCEEDED', 'FAILED', 'CANCELLED', 'REQUIRES_ACTION'],
-    example: 'SUCCEEDED',
+    enum: PaymentAttemptStatus,
+    example: PaymentAttemptStatus.SUCCEEDED,
   })
   status!: string;
 
